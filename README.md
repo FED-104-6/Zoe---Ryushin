@@ -7,5 +7,5 @@ Hi! This is our project for the new flat. Over the course of 3 weeks, our team b
 - **Developer B:** Ryushin  
 
 ## Communication
-We’ll mainly talk things through during class to work out any issues.  
-If needed, we’ll also use Microsoft Teams to make sure we’re on the same page.
+We’ll mainly communicate through Google Meet to work together or figure out any issues.  
+
