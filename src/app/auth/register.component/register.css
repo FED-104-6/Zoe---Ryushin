@@ -1,0 +1,113 @@
+/* New Dynamic Background */
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #212121;
+  padding: 24px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+:host::before,
+:host::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(150px);
+  z-index: 0;
+}
+
+:host::before {
+  background: #4caf50;
+  width: 350px;
+  height: 350px;
+  top: 5%;
+  left: 10%;
+}
+
+:host::after {
+  background: #ffca28;
+  width: 300px;
+  height: 300px;
+  bottom: 5%;
+  right: 10%;
+}
+
+.register-container {
+  max-width: 400px;
+  width: 100%;
+  position: relative; /* Ensure content is above background shapes */
+  z-index: 1;
+}
+
+/* Glassmorphism for Register Card */
+.register-card {
+  padding: 32px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  color: #ffffff;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 1.8em;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+.full-width {
+  width: 100%;
+}
+:host ::ng-deep .mat-form-field-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+:host ::ng-deep .mat-form-field-underline {
+  background-color: rgba(255, 255, 255, 0.42);
+}
+:host ::ng-deep .mat-form-field.mat-focused .mat-form-field-ripple {
+  background-color: #757575;
+}
+:host ::ng-deep .mat-input-element {
+  color: #ffffff;
+}
+
+.register-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16px;
+}
+.buttonSubmit {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1.1em;
+  background-color: #4caf50;
+  color: white;
+}
+.buttonSubmit:disabled {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.spinner-container {
+  margin-top: 16px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.success-message {
+  color: #66bb6a;
+  text-align: center;
+  margin-top: 16px;
+}
+.error-message {
+  color: #ef5350;
+  text-align: center;
+  margin-top: 16px;
+}

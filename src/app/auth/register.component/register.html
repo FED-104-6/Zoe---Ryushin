@@ -1,0 +1,124 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-title class="card-title">Create Account</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="name-row">
+          <mat-form-field class="full-width">
+            <mat-label>First Name</mat-label>
+            <input
+              matInput
+              placeholder="First Name"
+              formControlName="firstName"
+              required
+            />
+            <mat-error
+              *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')"
+            >
+              First name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>Last Name</mat-label>
+            <input
+              matInput
+              placeholder="Last Name"
+              formControlName="lastName"
+              required
+            />
+            <mat-error
+              *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')"
+            >
+              Last name is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="full-width">
+          <mat-label>Birth Date</mat-label>
+          <input matInput type="date" formControlName="birthDate" required />
+          <mat-error
+            *ngIf="form.get('birthDate')?.touched && form.get('birthDate')?.hasError('required')"
+          >
+            Birth date is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            placeholder="your.email@example.com"
+            formControlName="email"
+            required
+          />
+          <mat-error
+            *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')"
+          >
+            Email is required
+          </mat-error>
+          <mat-error
+            *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')"
+          >
+            Enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            placeholder="Create a Password"
+            formControlName="password"
+            required
+          />
+          <mat-error
+            *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')"
+          >
+            Password is required
+          </mat-error>
+          <mat-error
+            *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')"
+          >
+            Password must be at least 6 characters
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input
+            matInput
+            type="password"
+            placeholder="Confirm Password"
+            formControlName="confirmPassword"
+            required
+          />
+          <mat-error
+            *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')"
+          >
+            Confirm password is required
+          </mat-error>
+          <mat-error *ngIf="form.touched && form.hasError('passwordMismatch')">
+            Passwords do not match
+          </mat-error>
+        </mat-form-field>
+
+        <div class="register-actions">
+          <button
+            class="buttonSubmit"
+            mat-raised-button
+            type="submit"
+            [disabled]="form.invalid"
+          >
+            Register
+          </button>
+        </div>
+
+        <div class="spinner-container"><!-- spinner placeholder --></div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
