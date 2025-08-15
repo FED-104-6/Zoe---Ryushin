@@ -50,6 +50,9 @@ export class RegisterComponent {
         lastName!,
         new Date(birthDate!)
       )
-      .catch((err) => alert(err.message));
+      .catch((err: any) => {
+        console.error(err);
+        alert(`${err.code || 'error'}: ${err.message || err}`);
+      });
   }
 }
