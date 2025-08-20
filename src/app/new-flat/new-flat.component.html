@@ -1,0 +1,103 @@
+<header>
+  <div class="logo">Rent<span>Ease</span></div>
+  <nav class="center-nav">
+    <a routerLink="/search">Search</a>
+    <a routerLink="/favorites">My Favorites</a>
+    <a routerLink="/new-flat">Add a New Flat</a>
+    <a routerLink="/setting">Setting</a>
+  </nav>
+  <div class="logout">Log out</div>
+</header>
+
+<h1 class="page-title">Contribute to the RentEase community in just few mins!</h1>
+<p class="page-subtitle">Know a great flat? Share it and help someone find their next home.</p>
+
+<form class="form-container" [formGroup]="form" (ngSubmit)="submit()">
+    
+  <!-- Left column -->
+  <div class="form-left">
+    <h2 class="section-title">General info</h2>
+
+    <div class="form-group">
+      <label for="description">Describe the flat in one sentence</label>
+      <textarea id="description" formControlName="description" placeholder="e.g. Bright 2-bedroom apartment near Gastown"></textarea>
+      <span class="max-words">Max 8 words</span>
+    </div>
+
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input id="price" type="number" formControlName="price" />
+    </div>
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <input id="city" type="text" formControlName="city" />
+    </div>
+
+    <div class="form-group">
+      <label for="street">Street name</label>
+      <input id="street" type="text" formControlName="street" />
+    </div>
+
+    <div class="form-group">
+      <label for="postal">Postal code</label>
+      <input id="postal" type="text" formControlName="postal" />
+    </div>
+
+    <button class="submit-btn" type="submit">Share this flat</button>
+  </div>
+
+  <!-- Right column -->
+  <div class="form-right">
+    <h2 class="section-title">Original source (optional)</h2>
+    <div class="form-group">
+      <label for="source">Share the link you found this flat</label>
+      <input id="source" type="url" formControlName="source" />
+    </div>
+
+    <h2 class="section-title">Upload photos (optional)</h2>
+    <div class="form-group">
+      <label for="photos">Upload at least one photo</label>
+
+      <div class="upload-box">
+        <img src="assets/upload-photo.svg" alt="upload icon" class="upload-icon" />
+        <input
+          id="photos"
+          type="file"
+          accept="image/png, image/jpeg"
+          multiple
+          (change)="onPhotosSelected($event)"
+          style="position:absolute; inset:0; opacity:0; cursor:pointer;"
+        />
+        <div class="upload-caption">Photos: JPG, JPEG, or PNG (max 5MB each).</div>
+        <div class="upload-preview">
+          <img *ngFor="let p of photoPreviews; let i = index" [src]="p" alt="preview" (click)="removePhoto(i)" />
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">More details (optional)</h2>
+    <div class="mini-grid">
+      <label>
+        Street No.
+        <input type="number" formControlName="streetNumber" />
+      </label>
+      <label>
+        Area (sqft)
+        <input type="number" formControlName="areaSize" />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" formControlName="hasAC" />
+        Has AC
+      </label>
+      <label>
+        Year built
+        <input type="number" formControlName="yearBuilt" />
+      </label>
+      <label>
+        Available on
+        <input type="date" formControlName="dateAvailable" />
+      </label>
+    </div>
+  </div>
+</form>

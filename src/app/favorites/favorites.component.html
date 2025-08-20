@@ -1,0 +1,43 @@
+<header>
+  <div class="logo">Rent<span>Ease</span></div>
+  <nav class="center-nav">
+    <a routerLink="/search">Search</a>
+    <a routerLink="/favorites">My Favorites</a>
+    <a routerLink="/new-flat">Add a New Flat</a>
+    <a routerLink="/setting">Setting</a>
+  </nav>
+  <div class="logout">Log out</div>
+</header>
+
+<div class="sort-bar" *ngIf="!isEmpty">
+  Sorted by
+  <button (click)="sortBy('priceAsc')">Price ↑</button>
+  <button (click)="sortBy('priceDesc')">Price ↓</button>
+  <button class="clear-all" (click)="clearAll()">Clear all</button>
+</div>
+
+<!-- Empty state -->
+<div class="empty" *ngIf="isEmpty">
+  <h3>No favorites yet</h3>
+  <p>Browse listings and tap the heart to save your favorites.</p>
+  <a class="go-search" routerLink="/search">Go to Search</a>
+</div>
+
+<!-- Grid -->
+<div class="flat-grid" *ngIf="!isEmpty">
+  <div class="flat-card" *ngFor="let f of view" (click)="openFlat(f)">
+    <div class="flat-image" [style.background-image]="'url(' + f.image + ')'">
+      <button class="fav-button" (click)="$event.stopPropagation(); remove(f.id)">
+        <img src="assets/trash.svg" alt="remove" />
+      </button>
+    </div>
+    <div class="info">
+      <h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
+      <div class="location">
+        <img src="assets/location.svg" alt="location">
+        {{ f.streetName }}, {{ f.city }}
+      </div>
+      <div class="price">${{ f.rentPrice | number:'1.0-0' }}<span>/month</span></div>
+    </div>
+  </div>
+</div>
