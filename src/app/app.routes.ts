@@ -1,20 +1,24 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'search' },
 
   {
     path: 'search',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./search/search.component').then((m) => m.SearchComponent),
   },
   {
     path: 'new-flat',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./new-flat/new-flat.component').then((m) => m.NewFlatComponent),
   },
   {
     path: 'favorites',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./favorites/favorites.component').then(
         (m) => m.FavoritesComponent
@@ -37,6 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./profile/profile.component/profile.component').then(
         (m) => m.ProfileComponent

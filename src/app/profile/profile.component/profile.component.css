@@ -9,3 +9,13 @@
 mat-list-item {
   padding-left: 0;
 }
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+mat-list-item strong {
+  width: 120px;
+  display: inline-block;
+}
