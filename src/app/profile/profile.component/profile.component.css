@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+.card {
+  width: 520px;
+}
+mat-list-item {
+  padding-left: 0;
+}
