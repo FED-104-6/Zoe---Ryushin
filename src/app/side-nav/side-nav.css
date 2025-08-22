@@ -1,0 +1,79 @@
+.side-nav-list {
+  background: rgba(
+    33,
+    33,
+    33,
+    0.7
+  ); /* Slightly darker background for better contrast */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  height: 100%;
+  padding-top: 10px;
+}
+
+.side-nav-list a[mat-list-item],
+.side-nav-list mat-list-item {
+  height: 48px; /* Standard Material Design height */
+  font-weight: 500; /* Make font slightly bolder */
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); /* Stronger text shadow */
+  transition: background-color 0.3s ease;
+  position: relative; /* Needed for absolute positioning of children */
+}
+
+/*
+ * FINAL ALIGNMENT FIX:
+ * Force vertical centering by directly manipulating the position of the inner elements.
+ * This is a robust method that bypasses the component's internal flexbox styles.
+*/
+::ng-deep .side-nav-list .mat-mdc-list-item-content {
+  position: static !important;
+}
+::ng-deep .side-nav-list mat-icon,
+::ng-deep .side-nav-list .nav-caption {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+::ng-deep .side-nav-list mat-icon {
+  left: 16px; /* Position icon from the left */
+}
+
+::ng-deep .side-nav-list .nav-caption {
+  left: 56px; /* Position text to the right of the icon */
+}
+
+
+.side-nav-list span,
+a {
+  color: #f5f5f5;
+}
+
+.side-nav-list mat-icon {
+  color: #f5f5f5;
+  filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.6));
+}
+
+.side-nav-list a[mat-list-item]:hover,
+.side-nav-list mat-list-item:hover {
+  background: rgba(255, 255, 255, 0.15); /* Slightly more visible hover */
+}
+
+.side-nav-list [matMenuTriggerFor] {
+  background: none;
+}
+
+/* Adjust menu styles for consistency */
+::ng-deep .mat-mdc-menu-panel {
+  background: rgba(50, 50, 50, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+::ng-deep .mat-mdc-menu-item {
+  color: #f5f5f5 !important;
+}
+
+::ng-deep .mat-mdc-menu-item:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+}

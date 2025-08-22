@@ -3,7 +3,7 @@ import { MaterialModule } from '../../Material/material.module';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login.component',
@@ -16,6 +16,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -32,8 +33,12 @@ export class LoginComponent {
     const { email, password } = this.form.value;
 
     try {
-      await this.auth.signInWithEmail(email as string, password as string);
-      await this.router.navigateByUrl('/');
+      const redirect = this.route.snapshot.queryParamMap.get('redirect');
+      await this.auth.signInWithEmail(
+        email as string,
+        password as string,
+        redirect || undefined
+      );
     } catch (err: any) {
       console.error(err);
       this.error = err?.code || err?.message || String(err);

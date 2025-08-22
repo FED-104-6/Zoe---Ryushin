@@ -1,0 +1,27 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.app-header {
+  /* Transparent background with a glassmorphism effect */
+  background: rgba(33, 33, 33, 0.6); /* Semi-transparent dark background */
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  color: white; /* Ensure text is readable */
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Keep header on top */
+}
+
+/* Style for the navigation buttons */
+.app-header a[mat-button],
+.app-header button[mat-icon-button] {
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.app-header a[mat-button]:hover,
+.app-header button[mat-icon-button]:hover {
+  background: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
