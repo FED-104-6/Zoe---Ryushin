@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../Material/material.module';
-import { AuthService } from '../auth/auth.service';
+import { MaterialModule } from '../../services/ui/material.module';
+import { AuthService } from '../../auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { User } from '@angular/fire/auth';

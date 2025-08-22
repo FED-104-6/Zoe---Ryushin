@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MaterialModule } from '../../Material/material.module';
+import { MaterialModule } from '../../services/ui/material.module';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';

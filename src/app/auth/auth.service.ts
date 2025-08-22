@@ -58,7 +58,8 @@ export class AuthService {
     return this.router.navigateByUrl(redirectUrl || '/new-flat');
   }
 
-  logout() {
-    return signOut(this.auth);
+  async logout() {
+    await signOut(this.auth);
+    return this.router.navigateByUrl('/login');
   }
 }
