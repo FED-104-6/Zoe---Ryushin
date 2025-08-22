@@ -45,6 +45,10 @@ export class NewFlatComponent implements OnInit {
     return d.toISOString().slice(0, 10);
   }
 
+  private genId(): string {
+    return 'flat_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
   onPhotosSelected(e: Event) {
     const input = e.target as HTMLInputElement;
     const files = input.files ? Array.from(input.files) : [];
@@ -68,6 +72,8 @@ export class NewFlatComponent implements OnInit {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     const v = this.form.value;
+    const me = this.flats.currentUser(); 
+
     const flat: Flat = {
       city: v.city,
       streetName: v.street,
@@ -77,12 +83,16 @@ export class NewFlatComponent implements OnInit {
       yearBuilt: Number(v.yearBuilt ?? 2005),
       rentPrice: Number(v.price),
       dateAvailable: v.dateAvailable || this.defaultDate(),
-      ownerId: 'seed-owner-1',
+
+      ownerId: me.id,                 
+      ownerName: (me as any).fullName || 'Me',
+      ownerEmail: (me as any).email || '',
+
       title: v.description,
       image: this.photoPreviews[0] || undefined,
-    };
-
+      id: this.genId(),
+    } as any;
     this.flats.upsert(flat);
-    this.router.navigateByUrl('/search');
+    this.router.navigateByUrl('/search'); 
   }
 }

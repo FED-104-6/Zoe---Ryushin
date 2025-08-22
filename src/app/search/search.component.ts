@@ -1,32 +1,54 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+
 import { Flat } from '../models/flat.model';
 import { FlatsService } from '../services/flats.service';
 import { FavoritesService } from '../services/favorites.service';
 
+import { FlatViewCard } from './flat-view.card';
+import { FlatEditForm } from './flat-edit.form';
+
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './search.component.html',
-  styleUrls: ['./search.component.css']
+  styleUrls: ['./search.component.css'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    FlatViewCard,     
+    FlatEditForm     
+  ]
 })
 export class SearchComponent implements OnInit {
   form!: FormGroup;
+
+  // Data rendered in the main grid
   all: Flat[] = [];
   view: Flat[] = [];
   sort: 'priceAsc' | 'priceDesc' | 'area' | 'city' | null = null;
 
+  // Panel state and user context
+  me!: { id: string; fullName?: string; email?: string };
+  extraFlats$!: Observable<Flat[]>;
+  mode$!: Observable<'none' | 'view' | 'edit'>;
+  selectedFlat$!: Observable<Flat | null>;
+
   constructor(
-  private fb: FormBuilder,
-  private flats: FlatsService,
-  private fav: FavoritesService,
-  private router: Router
-) {}
+    private fb: FormBuilder,
+    private flats: FlatsService,
+    private fav: FavoritesService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    // Filters form
     this.form = this.fb.group({
       city: [''],
       street: [''],
@@ -36,17 +58,38 @@ export class SearchComponent implements OnInit {
       areaMax: [''],
     });
 
+    // Seed once and load initial list
     if (this.flats.listAll().length === 0) this.seedDefaults();
     this.all = this.flats.listAll();
     this.view = [...this.all];
+
+    // Side panel state (URL-driven) and current user
+    this.me = this.flats.currentUser();
+    this.extraFlats$ = this.flats.getMyCreatedFlats();
+    this.mode$ = this.route.queryParamMap.pipe(
+      map(q => (q.has('view') ? 'view' : q.has('edit') ? 'edit' : 'none'))
+    );
+    this.selectedFlat$ = this.route.queryParamMap.pipe(
+      switchMap(q => {
+        const id = q.get('view') || q.get('edit');
+        return id ? this.flats.getFlatById(id) : of(null);
+      })
+    );
   }
 
+  // Filtering
   applyFilters() {
     const { city, street, priceMin, priceMax, areaMin, areaMax } = this.form.value;
     let list = [...this.all];
 
-    if (city)   list = list.filter(f => f.city.toLowerCase().includes(String(city).toLowerCase()));
-    if (street) list = list.filter(f => f.streetName.toLowerCase().includes(String(street).toLowerCase()));
+    if (city) {
+      const c = String(city).toLowerCase();
+      list = list.filter(f => f.city.toLowerCase().includes(c));
+    }
+    if (street) {
+      const s = String(street).toLowerCase();
+      list = list.filter(f => f.streetName.toLowerCase().includes(s));
+    }
 
     const pMin = priceMin ? Number(priceMin) : -Infinity;
     const pMax = priceMax ? Number(priceMax) : Infinity;
@@ -65,6 +108,7 @@ export class SearchComponent implements OnInit {
     this.view = [...this.all];
   }
 
+  // Sorting
   sortBy(kind: 'priceAsc' | 'priceDesc' | 'area' | 'city') {
     this.sort = kind;
     this.view = this.sortList([...this.view]);
@@ -80,10 +124,25 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  // Favorites
   isFav(id?: string) { return this.fav.isFav(id); }
   toggleFav(e: MouseEvent, id?: string) { e.stopPropagation(); this.fav.toggle(id); }
-  openFlat(f: Flat) { if (f.id) this.router.navigate(['/flats', f.id]); }
 
+  // Side panel actions
+  openFlat(f: Flat) { if (f.id) this.router.navigate(['/flats', f.id]); }
+  openView(id: string) { this.router.navigate([], { queryParams: { view: id }, queryParamsHandling: 'merge' }); }
+  openEdit(id: string) { this.router.navigate([], { queryParams: { edit: id }, queryParamsHandling: 'merge' }); }
+  closePanel() {
+    const qp = { ...this.route.snapshot.queryParams };
+    delete qp['view']; delete qp['edit'];
+    this.router.navigate([], { queryParams: qp });
+  }
+  saveEdit(e: { id: string; patch: Partial<Flat> }) {
+    this.flats.updateFlat(e.id, e.patch);
+    this.closePanel();
+  }
+
+  // Initial seed (default 9 cards)
   private seedDefaults() {
     const items = [
       { title: 'Private office in beautiful Gastown', city: 'Vancouver', street: '302 Water Street', price: 2500, area: 45, image: 'assets/private-office-in-beautiful-gastown.png' },
@@ -102,7 +161,7 @@ export class SearchComponent implements OnInit {
         city: it.city, streetName: it.street, streetNumber: 0,
         areaSize: it.area, hasAC: false, yearBuilt: 2005,
         rentPrice: it.price, dateAvailable: today, ownerId: 'seed-owner-1',
-        title: it.title, image: it.image,
+        title: it.title, image: it.image
       };
       this.flats.upsert(flat);
     }

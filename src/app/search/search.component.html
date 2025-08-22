@@ -5,6 +5,7 @@
     <a routerLink="/favorites">My Favorites</a>
     <a routerLink="/new-flat">Add a New Flat</a>
     <a routerLink="/setting">Setting</a>
+    <a routerLink="/my-flat">My Flat</a>
   </nav>
   <div class="logout">Log out</div>
 </header>
@@ -44,14 +45,47 @@
       Sorted by
       <button type="button" (click)="sortBy('priceAsc')">Price ↑</button>
       <button type="button" (click)="sortBy('priceDesc')">Price ↓</button>
-      <button type="button" (click)="sortBy('area')">Area</button>
-      <button type="button" (click)="sortBy('city')">City</button>
     </div>
 
     <div class="flat-grid">
-      <div class="flat-card" *ngFor="let f of view" (click)="openFlat(f)">
+      <!-- default seeded list -->
+      <div class="flat-card" *ngFor="let f of view">
         <div class="image-container">
-          <img [src]="'/' + f.image" alt="Flat" />
+          <img
+            [src]="'/' + f.image"
+            alt="Flat"
+            (click)="openView(f.id!)"
+          />
+          <button
+            class="favorite-icon"
+            [attr.aria-pressed]="isFav(f.id)"
+            (click)="toggleFav($event, f.id)"
+            type="button"
+          >
+            <img src="/assets/favorite.svg" width="20" height="20" alt="favorite" />
+          </button>
+        </div>
+
+        <div class="info">
+          <h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
+          <div class="location">
+            <img src="/assets/location.svg" alt="location" />
+            {{ f.streetName }}, {{ f.city }}
+          </div>
+          <div class="price">
+            ${{ f.rentPrice | number:'1.0-0' }} <span>/month</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- appended list: flats created by the current user -->
+      <div class="flat-card" *ngFor="let f of (extraFlats$ | async)">
+        <div class="image-container">
+          <img
+            [src]="f.image?.startsWith('data:') ? f.image : '/' + (f.image || 'assets/placeholder.jpg')"
+            [alt]="f.title || (f.city + ' · ' + f.streetName)"
+            (click)="openView(f.id!)"
+          />
           <button
             class="favorite-icon"
             [attr.aria-pressed]="isFav(f.id)"
@@ -76,3 +110,25 @@
     </div>
   </section>
 </div>
+
+<!-- ===== Side panel (View / Edit) ===== (ps: the final version of view/edit may not side panel)-->
+<!-- Overlay: click to close -->
+<div class="overlay" *ngIf="(mode$ | async) !== 'none'" (click)="closePanel()"></div>
+
+<!-- Slide-in panel -->
+<aside class="sidepanel" *ngIf="(mode$ | async) as mode">
+  <ng-container *ngIf="mode !== 'none'">
+    <ng-container *ngIf="selectedFlat$ | async as sel">
+      <!-- View mode -->
+      <flat-view-card *ngIf="mode === 'view'" [f]="sel"></flat-view-card>
+
+      <!-- Edit mode -->
+      <flat-edit-form
+        *ngIf="mode === 'edit'"
+        [data]="sel"
+        (save)="saveEdit($event)"
+        (cancel)="closePanel()">
+      </flat-edit-form>
+    </ng-container>
+  </ng-container>
+</aside>
