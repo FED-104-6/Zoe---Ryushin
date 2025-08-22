@@ -1,6 +1,7 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../Material/material.module';
+import { MaterialModule } from '../../services/ui/material.module';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -10,10 +11,15 @@ import { MaterialModule } from '../Material/material.module';
   styleUrl: './side-nav.css',
 })
 export class SideNav implements OnInit {
+  private authService = inject(AuthService);
   @Output() sidenavClose = new EventEmitter();
   constructor() {}
   ngOnInit() {}
   public onSidenavClose = () => {
     this.sidenavClose.emit();
   };
+
+  onSignOut() {
+    this.authService.logout();
+  }
 }

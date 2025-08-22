@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { MaterialModule } from '../../Material/material.module';
+import { MaterialModule } from '../../services/ui/material.module';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth, User } from '@angular/fire/auth';
