@@ -1,0 +1,48 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-title>My Profile</mat-card-title>
+
+    <mat-card-content *ngIf="profile(); else loading">
+      <form [formGroup]="form" (ngSubmit)="onConfirm()" class="grid">
+        <div class="name-row">
+          <mat-form-field appearance="fill">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>Birth Date</mat-label>
+          <input matInput type="date" formControlName="birthDate" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" required />
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="goProfile()">
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            type="submit"
+            [disabled]="form.invalid || form.pristine"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <ng-template #loading
+      ><mat-card-content>Loading...</mat-card-content></ng-template
+    >
+  </mat-card>
+</div>

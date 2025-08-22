@@ -47,6 +47,14 @@ export const routes: Routes = [
         (m) => m.ProfileComponent
       ),
   },
+  {
+    path: 'profile/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./profile/profile.edit.component/profile.edit.component').then(
+        (m) => m.ProfileEditComponent
+      ),
+  },
 
   { path: '**', redirectTo: 'search' },
 ];
