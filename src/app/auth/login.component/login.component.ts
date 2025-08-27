@@ -26,6 +26,14 @@ export class LoginComponent {
   loading = false;
   error: string | null = null;
 
+  redirectUrl = '/';
+
+  ngOnInit() {
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
+    this.redirectUrl = redirect;
+    this.redirectUrl = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
+  }
+
   async onSubmit() {
     if (this.form.invalid) return;
     this.loading = true;
@@ -33,11 +41,10 @@ export class LoginComponent {
     const { email, password } = this.form.value;
 
     try {
-      const redirect = this.route.snapshot.queryParamMap.get('redirect');
       await this.auth.signInWithEmail(
         email as string,
         password as string,
-        redirect || undefined
+        this.redirectUrl || undefined
       );
     } catch (err: any) {
       console.error(err);
