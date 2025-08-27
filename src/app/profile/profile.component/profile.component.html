@@ -1,36 +1,67 @@
 <div class="container">
   <mat-card class="card">
-    <mat-card-title>My Profile</mat-card-title>
+    <mat-card-header class="card-header">
+      <mat-icon class="avatar" aria-hidden="true">account_circle</mat-icon>
+      <div>
+        <mat-card-title>My Profile</mat-card-title>
+        <mat-card-subtitle *ngIf="profile()"
+          >{{ profile()!.firstName }}
+          {{ profile()!.lastName }}</mat-card-subtitle
+        >
+      </div>
+    </mat-card-header>
 
-    <mat-card-content *ngIf="profile(); else loading">
-      <mat-list>
-        <mat-list-item
-          ><strong>First Name:</strong>&nbsp;{{
-            profile()!.firstName
-          }}</mat-list-item
-        >
-        <mat-list-item
-          ><strong>Last Name:</strong>&nbsp;{{
-            profile()!.lastName
-          }}</mat-list-item
-        >
-        <mat-list-item
-          ><strong>Birth Date:</strong>&nbsp;{{
-            profile()!.birthDate | date : "yyyy/MM/dd"
-          }}</mat-list-item
-        >
-        <mat-list-item
-          ><strong>Email:</strong>&nbsp;{{ profile()!.email }}</mat-list-item
-        >
-      </mat-list>
-    </mat-card-content>
+    <ng-container *ngIf="profile(); else loading">
+      <mat-card-content>
+        <mat-list role="list" class="details">
+          <mat-list-item role="listitem">
+            <strong>First Name : </strong>
+            <span class="value">{{ profile()!.firstName }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
 
-    <ng-template #loading
-      ><mat-card-content>Loading...</mat-card-content></ng-template
-    >
+          <mat-list-item role="listitem">
+            <strong>Last Name : </strong>
+            <span class="value">{{ profile()!.lastName }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
 
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="goEdit()">Edit</button>
-    </mat-card-actions>
+          <mat-list-item role="listitem">
+            <strong>Birth Date : </strong>
+            <span class="value">{{
+              profile()!.birthDate | date : "yyyy/MM/dd"
+            }}</span>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+
+          <mat-list-item role="listitem">
+            <strong>Email : </strong>
+            <span class="value">{{ profile()!.email }}</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="goEdit()"
+          *ngIf="canEdit()"
+        >
+          <mat-icon>edit</mat-icon>
+          <span>Edit</span>
+        </button>
+      </mat-card-actions>
+    </ng-container>
+
+    <ng-template #loading>
+      <mat-card-content class="loading">
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="24"
+        ></mat-progress-spinner>
+        <span>Loading profile…</span>
+      </mat-card-content>
+    </ng-template>
   </mat-card>
 </div>

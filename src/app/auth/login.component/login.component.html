@@ -14,10 +14,20 @@
             formControlName="email"
             required
           />
-          <mat-error *ngIf="form.get('email')?.hasError('required')">
+          <mat-error
+            *ngIf="
+              form.get('email')?.hasError('required') &&
+              (form.get('email')?.touched || form.get('email')?.dirty)
+            "
+          >
             Email is required
           </mat-error>
-          <mat-error *ngIf="form.get('email')?.hasError('email')">
+          <mat-error
+            *ngIf="
+              form.get('email')?.hasError('email') &&
+              (form.get('email')?.touched || form.get('email')?.dirty)
+            "
+          >
             Enter a valid email
           </mat-error>
         </mat-form-field>
@@ -27,11 +37,16 @@
           <input
             matInput
             type="password"
-            placeholder="Create a Password"
+            placeholder="Your password"
             formControlName="password"
             required
           />
-          <mat-error *ngIf="form.get('password')?.hasError('required')">
+          <mat-error
+            *ngIf="
+              form.get('password')?.hasError('required') &&
+              (form.get('password')?.touched || form.get('password')?.dirty)
+            "
+          >
             Password is required
           </mat-error>
         </mat-form-field>
@@ -46,8 +61,19 @@
             Log in
           </button>
         </div>
+        <div class="register-actions" style="margin-top: 8px">
+          <a mat-stroked-button class="buttonSubmit" routerLink="/register"
+            >Create account</a
+          >
+        </div>
 
-        <div class="spinner-container"><!-- spinner placeholder --></div>
+        <div class="spinner-container">
+          <mat-progress-spinner
+            *ngIf="loading"
+            mode="indeterminate"
+            diameter="24"
+          ></mat-progress-spinner>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>
