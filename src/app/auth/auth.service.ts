@@ -5,12 +5,20 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  signInWithPopup,
+  setPersistence,
+  browserSessionPersistence,
   User,
   updateProfile,
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
-import { map, Observable } from 'rxjs';
+import {
+  Firestore,
+  doc,
+  setDoc,
+  serverTimestamp,
+  Timestamp,
+  docData,
+} from '@angular/fire/firestore';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -25,8 +33,23 @@ export class AuthService {
   private _user = signal<User | null>(null);
   user = computed(() => this._user);
 
+  private sessionTimer: any = null;
+  private startSessionTimer(ms: number) {
+    if (this.sessionTimer) clearTimeout(this.sessionTimer);
+    this.sessionTimer = setTimeout(() => {
+      this.logout();
+    }, ms);
+  }
+
   constructor() {
     this.user$.subscribe((u) => this._user.set(u));
+
+    this.user$.subscribe((u) => {
+      if (!u && this.sessionTimer) {
+        clearTimeout(this.sessionTimer);
+        this.sessionTimer = null;
+      }
+    });
   }
 
   async signUpWithDetails(
@@ -42,24 +65,51 @@ export class AuthService {
       password
     );
 
+    await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` });
+
     const userDocRef = doc(this.firestore, `users/${cred.user.uid}`);
-    await setDoc(userDocRef, {
-      firstName,
-      lastName,
-      birthDate: birthDate.toISOString(),
-      email: cred.user.email,
-      createdAt: new Date().toISOString(),
-    });
+    await setDoc(
+      userDocRef,
+      {
+        firstName,
+        lastName,
+        birthDate: Timestamp.fromDate(birthDate),
+        email: cred.user.email,
+        isAdmin: false,
+        createdAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    await this.router.navigateByUrl('/');
+    this.startSessionTimer(60 * 60 * 1000);
     return cred;
   }
 
   async signInWithEmail(email: string, password: string, redirectUrl?: string) {
+    await setPersistence(this.auth, browserSessionPersistence);
+
     await signInWithEmailAndPassword(this.auth, email, password);
-    return this.router.navigateByUrl(redirectUrl || '/new-flat');
+
+    this.startSessionTimer(60 * 60 * 1000);
+    return this.router.navigateByUrl(redirectUrl || '/');
   }
 
   async logout() {
+    if (this.sessionTimer) {
+      clearTimeout(this.sessionTimer);
+      this.sessionTimer = null;
+    }
     await signOut(this.auth);
     return this.router.navigateByUrl('/login');
   }
+
+  isAdmin$: Observable<boolean> = this.user$.pipe(
+    switchMap((u) => {
+      if (!u) return of(false);
+      return docData(doc(this.firestore, 'users', u.uid)).pipe(
+        map((d: any) => !!d?.isAdmin)
+      );
+    })
+  );
 }
