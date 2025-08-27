@@ -7,6 +7,15 @@
   <a mat-button routerLink="/home">Home</a>
   <a mat-button routerLink="/favorites">Favorites</a>
   <a mat-button routerLink="/about">About</a>
+  <a mat-button routerLink="/users" *ngIf="(auth.isAdmin$ | async) === true"
+    >All Users</a
+  >
+
+  <!-- debug: shows 'admin' or 'not admin' -->
+  <!-- <span class="debug" style="opacity: 0.3"
+    >{{ (isAdmin$ | async) ? 'admin' : 'not admin' }}</span
+  > -->
+
   <span class="spacer"></span>
 
   <ng-container *ngIf="user$ | async as user; else showLogin">
