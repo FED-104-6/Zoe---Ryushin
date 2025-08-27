@@ -1,134 +1,63 @@
 <header>
-  <div class="logo">Rent<span>Ease</span></div>
-  <nav class="nav-center">
-    <a routerLink="/search">Search</a>
-    <a routerLink="/favorites">My Favorites</a>
-    <a routerLink="/new-flat">Add a New Flat</a>
-    <a routerLink="/setting">Setting</a>
-    <a routerLink="/my-flat">My Flat</a>
-  </nav>
-  <div class="logout">Log out</div>
 </header>
-
 <div class="main-container" [formGroup]="form">
-  <!-- Filter panel -->
-  <aside class="filter-panel">
-    <h3>Filter</h3>
+<aside class="filter-panel">
+<h3>Filter</h3>
+<label for="city">City</label>
+<input id="city" type="text" formControlName="city" />
+<label for="street">Street</label>
+<input id="street" type="text" formControlName="street" />
 
-    <label for="city">City</label>
-    <input id="city" type="text" formControlName="city" />
 
-    <label for="street">Street</label>
-    <input id="street" type="text" formControlName="street" />
-
-    <label>Price Range</label>
-    <div class="range-group">
-      <input type="number" placeholder="Min" formControlName="priceMin" />
-      <span>to</span>
-      <input type="number" placeholder="Max" formControlName="priceMax" />
-    </div>
-
-    <label>Building Area</label>
-    <div class="range-group">
-      <input type="number" placeholder="Min" formControlName="areaMin" />
-      <span>to</span>
-      <input type="number" placeholder="Max" formControlName="areaMax" />
-    </div>
-
-    <button type="button" (click)="applyFilters()">Apply</button>
-    <button type="button" class="clear-btn" (click)="clearFilters()">Clear</button>
-  </aside>
-
-  <!-- Results -->
-  <section class="content">
-    <div class="sort-bar">
-      Sorted by
-      <button type="button" (click)="sortBy('priceAsc')">Price ↑</button>
-      <button type="button" (click)="sortBy('priceDesc')">Price ↓</button>
-    </div>
-
-    <div class="flat-grid">
-      <!-- default seeded list -->
-      <div class="flat-card" *ngFor="let f of view">
-        <div class="image-container">
-          <img
-            [src]="'/' + f.image"
-            alt="Flat"
-            (click)="openView(f.id!)"
-          />
-          <button
-            class="favorite-icon"
-            [attr.aria-pressed]="isFav(f.id)"
-            (click)="toggleFav($event, f.id)"
-            type="button"
-          >
-            <img src="/assets/favorite.svg" width="20" height="20" alt="favorite" />
-          </button>
-        </div>
-
-        <div class="info">
-          <h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
-          <div class="location">
-            <img src="/assets/location.svg" alt="location" />
-            {{ f.streetName }}, {{ f.city }}
-          </div>
-          <div class="price">
-            ${{ f.rentPrice | number:'1.0-0' }} <span>/month</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- appended list: flats created by the current user -->
-      <div class="flat-card" *ngFor="let f of (extraFlats$ | async)">
-        <div class="image-container">
-          <img
-            [src]="f.image?.startsWith('data:') ? f.image : '/' + (f.image || 'assets/placeholder.jpg')"
-            [alt]="f.title || (f.city + ' · ' + f.streetName)"
-            (click)="openView(f.id!)"
-          />
-          <button
-            class="favorite-icon"
-            [attr.aria-pressed]="isFav(f.id)"
-            (click)="toggleFav($event, f.id)"
-            type="button"
-          >
-            <img src="/assets/favorite.svg" width="20" height="20" alt="favorite" />
-          </button>
-        </div>
-
-        <div class="info">
-          <h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
-          <div class="location">
-            <img src="/assets/location.svg" alt="location" />
-            {{ f.streetName }}, {{ f.city }}
-          </div>
-          <div class="price">
-            ${{ f.rentPrice | number:'1.0-0' }} <span>/month</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<label>Price Range</label>
+<div class="range-group">
+<input type="number" placeholder="Min" formControlName="priceMin" />
+<span>to</span>
+<input type="number" placeholder="Max" formControlName="priceMax" />
 </div>
 
-<!-- ===== Side panel (View / Edit) ===== (ps: the final version of view/edit may not side panel)-->
-<!-- Overlay: click to close -->
-<div class="overlay" *ngIf="(mode$ | async) !== 'none'" (click)="closePanel()"></div>
 
-<!-- Slide-in panel -->
-<aside class="sidepanel" *ngIf="(mode$ | async) as mode">
-  <ng-container *ngIf="mode !== 'none'">
-    <ng-container *ngIf="selectedFlat$ | async as sel">
-      <!-- View mode -->
-      <flat-view-card *ngIf="mode === 'view'" [f]="sel"></flat-view-card>
+<label>Building Area</label>
+<div class="range-group">
+<input type="number" placeholder="Min" formControlName="areaMin" />
+<span>to</span>
+<input type="number" placeholder="Max" formControlName="areaMax" />
+</div>
 
-      <!-- Edit mode -->
-      <flat-edit-form
-        *ngIf="mode === 'edit'"
-        [data]="sel"
-        (save)="saveEdit($event)"
-        (cancel)="closePanel()">
-      </flat-edit-form>
-    </ng-container>
-  </ng-container>
+
+<button type="button" (click)="applyFilters()">Apply</button>
+<button type="button" class="clear-btn" (click)="clearFilters()">Clear</button>
 </aside>
+
+
+<section class="content">
+<div class="sort-bar">
+Sorted by
+<button type="button" (click)="sortBy('priceAsc')">Price ↑</button>
+<button type="button" (click)="sortBy('priceDesc')">Price ↓</button>
+</div>
+
+
+<div class="flat-grid">
+<div class="flat-card" *ngFor="let f of view" (click)="toView(f.id!)">
+<div class="image-container">
+<img [src]="f.image || 'assets/placeholder.jpg'" [alt]="f.title || (f.city + ' · ' + f.streetName)" />
+<button class="favorite-icon" [attr.aria-pressed]="isFav(f.id)" (click)="toggleFav($event, f.id)" type="button">
+<img src="/assets/favorite.svg" width="20" height="20" alt="favorite" />
+</button>
+</div>
+<div class="info">
+<h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
+<div class="location"><img src="/assets/location.svg" alt="loc" /> {{ f.streetName }}, {{ f.city }}</div>
+<div class="price">${{ f.rentPrice | number:'1.0-0' }} <span>/month</span></div>
+
+<!-- Owner info -->
+<div class="owner" *ngIf="f.ownerName || f.ownerEmail">
+<span class="owner-name">{{ f.ownerName || 'Owner' }}</span>
+<a *ngIf="f.ownerEmail" class="owner-email" [href]="'mailto:' + f.ownerEmail">{{ f.ownerEmail }}</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>

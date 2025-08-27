@@ -1,88 +1,65 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Flat } from '../models/flat.model'; 
+import { Auth } from '@angular/fire/auth';
+import { Firestore, collection, doc, addDoc, updateDoc, deleteDoc, getDoc, query, orderBy, getDocs } from '@angular/fire/firestore';
+import { collectionData } from '@angular/fire/firestore';
+import { Flat } from '../models/flat.model';
+import { Observable, map } from 'rxjs';
+
 
 @Injectable({ providedIn: 'root' })
 export class FlatsService {
-  private LS_KEY = 'flats';
-  private LS_USER = 'currentUser';
+constructor(private fs: Firestore, private auth: Auth) {}
 
-  currentUser(): { id: string; fullName?: string; email?: string } {
-    try {
-      const raw = localStorage.getItem(this.LS_USER);
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return { id: 'demo-user-1', fullName: 'Demo User', email: 'demo@example.com' };
-  }
 
-  private readAll(): Flat[] {
-    try {
-      const raw = localStorage.getItem(this.LS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  }
-  private writeAll(list: Flat[]) {
-    localStorage.setItem(this.LS_KEY, JSON.stringify(list));
-  }
+private colRef() { return collection(this.fs, 'flats'); }
 
-  listAll(): Flat[] {
-    return this.readAll();
-  }
 
-  upsert(input: Flat): void {
-    const list = this.readAll();
-    const entity: Flat = { ...input };
+currentUser() {
+const u = this.auth.currentUser;
+return { id: u?.uid || '', name: u?.displayName || '', email: u?.email || '' };
+}
 
-    if (!entity.id) {
-      entity.id = 'flat_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    }
+// live flats
+all$(): Observable<Flat[]> {
+return collectionData(query(this.colRef(), orderBy('createdAt','desc')), { idField: 'id' }) as Observable<Flat[]>;
+}
 
-    const idx = list.findIndex(f => f.id === entity.id);
-    if (idx >= 0) list[idx] = { ...list[idx], ...entity };
-    else list.unshift(entity);
+async getOne(id: string): Promise<Flat | null> {
+const snap = await getDoc(doc(this.fs, 'flats', id));
+return snap.exists() ? ({ id: snap.id, ...snap.data() } as Flat) : null;
+}
 
-    this.writeAll(list);
-  }
+async create(input: Omit<Flat,'id'|'ownerId'|'ownerName'|'ownerEmail'|'createdAt'>) {
+const me = this.currentUser();
+if (!me.id) throw new Error('Please sign in.');
+const payload: Flat = {
+...input,
+ownerId: me.id,
+ownerName: me.name || 'Owner',
+ownerEmail: me.email || '',
+createdAt: Date.now(),
+image: input.images?.[0] || input.image || '',
+};
+const ref = await addDoc(this.colRef(), payload as any);
+return ref.id;
+}
 
-  addFlat(newFlat: Flat): Observable<void> {
-    this.upsert(newFlat);
-    return of(void 0);
-  }
+async update(id: string, patch: Partial<Flat>) {
+await updateDoc(doc(this.fs, 'flats', id), patch as any);
+}
 
-  getMyCreatedFlats(): Observable<Flat[]> {
-    const me = this.currentUser();
-    return of(this.readAll().filter(f => f.ownerId === me.id));
-  }
 
-  getFlatById(id: string): Observable<Flat> {
-    const hit = this.readAll().find(f => f.id === id);
-    if (hit) return of(hit);
-    return of({
-      id,
-      city: '', streetName: '', streetNumber: 0, areaSize: 0, hasAC: false,
-      yearBuilt: 0, rentPrice: 0, dateAvailable: '', ownerId: 'seed',
-    } as Flat);
-  }
+async remove(id: string) {
+await deleteDoc(doc(this.fs, 'flats', id));
+}
 
-  updateFlat(id: string, patch: Partial<Flat>): Observable<void> {
-    const list = this.readAll();
-    const idx = list.findIndex(f => f.id === id);
-    if (idx >= 0) {
-      list[idx] = { ...list[idx], ...patch, id };
-      this.writeAll(list);
-    }
-    return of(void 0);
-  }
 
-  getMyFlats(userId: string): Observable<Flat[]> {
-    return of(this.readAll().filter(f => f.ownerId === userId));
-  }
-
-  deleteFlat(id: string): Observable<void> {
-    const list = this.readAll().filter(f => f.id !== id);
-    this.writeAll(list);
-    return of(void 0);
-  }
+// my own flats
+async myFlats(uid: string): Promise<Flat[]> {
+const q = query(this.colRef());
+const snap = await getDocs(q);
+return snap.docs
+.map(d => ({ id: d.id, ...(d.data() as any) }))
+.filter((r: any) => r.ownerId === uid) as Flat[];
+}
 }

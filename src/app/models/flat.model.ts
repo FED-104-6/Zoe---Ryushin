@@ -8,7 +8,13 @@ export interface Flat {
   yearBuilt: number;
   rentPrice: number;
   dateAvailable: string; 
+
   ownerId: string;
-  image?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+
+  image?: string[];
   title?: string;
+  createdAt?: number;
+  
 }

@@ -1,25 +1,37 @@
 import { Injectable } from '@angular/core';
-const LS_KEY = 'favorites_ids';
+import { Firestore, collection, doc, getDocs, setDoc, deleteDoc } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
+
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
-  private ids = new Set<string>(this.load());
+constructor(private fs: Firestore, private auth: Auth) {}
+private col() {
+const u = this.auth.currentUser;
+if (!u) throw new Error('Please sign in.');
+return collection(this.fs, `users/${u.uid}/favorites`);
+}
 
-  isFav(id?: string) { return !!id && this.ids.has(id); }
 
-  toggle(id?: string) {
-    if (!id) return;
-    this.ids.has(id) ? this.ids.delete(id) : this.ids.add(id);
-    this.save();
-  }
+async listIds(): Promise<string[]> {
+const snap = await getDocs(this.col());
+return snap.docs.map(d => d.id);
+}
 
-  listIds(): string[] { return [...this.ids]; }
 
-  clearAll() { this.ids.clear(); this.save(); }
+async isFav(id?: string) { if (!id) return false; return (await this.listIds()).includes(id); }
 
-  private save() { localStorage.setItem(LS_KEY, JSON.stringify([...this.ids])); }
-  private load(): string[] {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
-    catch { return []; }
-  }
+
+async toggle(id?: string) {
+if (!id) return;
+const ids = await this.listIds();
+const ref = doc(this.col(), id);
+if (ids.includes(id)) await deleteDoc(ref); else await setDoc(ref, { addedAt: Date.now() });
+}
+
+
+async clearAll() {
+const ids = await this.listIds();
+await Promise.all(ids.map(i => deleteDoc(doc(this.col(), i))));
+}
 }

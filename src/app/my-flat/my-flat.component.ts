@@ -1,36 +1,65 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
-
+import { Auth } from '@angular/fire/auth';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
 
 @Component({
-  selector: 'app-my-flat',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './my-flat.component.html',
+  template: `
+    <h2>My Flats</h2>
+
+    <table *ngIf="rows().length">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>City</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of rows()">
+          <td>{{ f.title || (f.city + ' · ' + f.streetName) }}</td>
+          <td>{{ f.city }}</td>
+          <td>\${{ f.rentPrice }}</td>
+          <td>
+            <button (click)="toView(f.id!)">View</button>
+            <button (click)="toEdit(f.id!)">Edit</button>
+            <button (click)="onDelete(f.id!)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p *ngIf="!rows().length">No flats yet.</p>
+  `,
 })
-export class MyFlatComponent implements OnInit {
-  constructor(private flats: FlatsService, private router: Router) {}
+export class MyFlatComponent {
+  private auth = inject(Auth);
+  private flats = inject(FlatsService);
+  private router = inject(Router);
 
-  me!: { id: string; fullName?: string; email?: string };
-  myFlats$!: Observable<Flat[]>;
+  rows = signal<Flat[]>([]);
 
-  ngOnInit(): void {
-    this.me = this.flats.currentUser();
-    this.myFlats$ = this.flats.getMyFlats(this.me.id);
+  async ngOnInit() {
+    const uid = this.auth.currentUser?.uid || '';
+    if (!uid) return;
+    this.rows.set(await this.flats.myFlats(uid));
   }
 
-  toNew()          { this.router.navigate(['/new-flat']); }
-  toView(id: string) { this.router.navigate(['/search'], { queryParams: { view: id },  queryParamsHandling: 'merge' }); }
-  toEdit(id: string) { this.router.navigate(['/search'], { queryParams: { edit: id },  queryParamsHandling: 'merge' }); }
+  toView(id: string) {
+    this.router.navigate(['/flats', id]);
+  }
 
-  remove(id: string) {
-    if (!confirm('Delete this flat?')) return;
-    this.flats.deleteFlat(id).subscribe(() => {
-      this.myFlats$ = this.flats.getMyFlats(this.me.id);
-    });
+  toEdit(id: string) {
+    this.router.navigate(['/flats', id, 'edit']);
+  }
+
+  async onDelete(id: string) {
+    await this.flats.remove(id);
+    this.rows.set(this.rows().filter((r) => r.id !== id));
   }
 }

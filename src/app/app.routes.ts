@@ -8,6 +8,10 @@ export const routes: Routes = [
   { path: 'new-flat', loadComponent: () => import('./new-flat/new-flat.component').then(m => m.NewFlatComponent) },
   { path: 'favorites', loadComponent: () => import('./favorites/favorites.component').then(m => m.FavoritesComponent) },
 
+  { path: 'flats/:id',       loadComponent: () => import('./flats/view-flat.page').then(m => m.default) },
+  { path: 'flats/:id/edit',  canActivate: [() => import('./flats/owner-edit.guard').then(m => m.ownerEditGuard)],
+                             loadComponent: () => import('./flats/edit-flat.page').then(m => m.default) },
+
   { path: 'login', loadComponent: () => import('./auth/login.component/login.component').then(m => m.LoginComponent) },
   { path: 'register', loadComponent: () => import('./auth/register.component/register').then(m => m.RegisterComponent) },
 
