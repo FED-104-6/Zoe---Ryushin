@@ -1,0 +1,20 @@
+<mat-toolbar class="app-header">
+  <div>
+    <button mat-icon-button (click)="onToggleSideNav()">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
+  <a mat-button routerLink="/home">Home</a>
+  <a mat-button routerLink="/favorites">Favorites</a>
+  <a mat-button routerLink="/about">About</a>
+  <span class="spacer"></span>
+
+  <ng-container *ngIf="user$ | async as user; else showLogin">
+    <a mat-button (click)="onSignOut()">Logout</a>
+  </ng-container>
+
+  <ng-template #showLogin>
+    <a mat-button routerLink="/register">Register</a>
+    <a mat-button routerLink="/login">Login</a>
+  </ng-template>
+</mat-toolbar>

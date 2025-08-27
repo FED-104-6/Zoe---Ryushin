@@ -1,0 +1,26 @@
+<mat-nav-list class="side-nav-list">
+  <a mat-list-item routerLink="/home" (click)="onSidenavClose()">
+    <mat-icon>home</mat-icon> <span class="nav-caption">Home</span>
+  </a>
+  <a mat-list-item routerLink="/profile" (click)="onSidenavClose()">
+    <mat-icon>assignment_ind</mat-icon>
+    <span class="nav-caption">User Profile</span>
+  </a>
+  <a mat-list-item routerLink="/new-flat" (click)="onSidenavClose()">
+    <mat-icon>account_balance</mat-icon>
+    <span class="nav-caption">Add Flats</span>
+  </a>
+  <mat-list-item [matMenuTriggerFor]="menu">
+    <mat-icon>unfold_more</mat-icon>
+    <a matline class="nav-caption">Profile</a>
+  </mat-list-item>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="onSidenavClose()" routerLink="/profile">
+      User
+    </button>
+    <button mat-menu-item (click)="onSidenavClose()">contacts</button>
+    <button mat-menu-item (click)="onSidenavClose()" (click)="onSignOut()">
+      Log Out
+    </button>
+  </mat-menu>
+</mat-nav-list>

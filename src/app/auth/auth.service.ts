@@ -5,13 +5,13 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  GoogleAuthProvider,
   signInWithPopup,
   User,
   updateProfile,
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { map, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +19,7 @@ import { map, Observable } from 'rxjs';
 export class AuthService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
+  private router = inject(Router);
 
   user$: Observable<User | null> = authState(this.auth);
   private _user = signal<User | null>(null);
@@ -46,16 +47,19 @@ export class AuthService {
       firstName,
       lastName,
       birthDate: birthDate.toISOString(),
+      email: cred.user.email,
       createdAt: new Date().toISOString(),
     });
     return cred;
   }
 
-  signInWithEmail(email: string, password: string) {
-    return signInWithEmailAndPassword(this.auth, email, password);
+  async signInWithEmail(email: string, password: string, redirectUrl?: string) {
+    await signInWithEmailAndPassword(this.auth, email, password);
+    return this.router.navigateByUrl(redirectUrl || '/new-flat');
   }
 
-  logout() {
-    return signOut(this.auth);
+  async logout() {
+    await signOut(this.auth);
+    return this.router.navigateByUrl('/login');
   }
 }

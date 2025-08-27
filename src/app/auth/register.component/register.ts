@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { MaterialModule } from '../../Material/material.module';
+import { MaterialModule } from '../../services/ui/material.module';
 
 @Component({
   selector: 'app-register',

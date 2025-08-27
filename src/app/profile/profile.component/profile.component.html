@@ -1,0 +1,36 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-title>My Profile</mat-card-title>
+
+    <mat-card-content *ngIf="profile(); else loading">
+      <mat-list>
+        <mat-list-item
+          ><strong>First Name:</strong>&nbsp;{{
+            profile()!.firstName
+          }}</mat-list-item
+        >
+        <mat-list-item
+          ><strong>Last Name:</strong>&nbsp;{{
+            profile()!.lastName
+          }}</mat-list-item
+        >
+        <mat-list-item
+          ><strong>Birth Date:</strong>&nbsp;{{
+            profile()!.birthDate | date : "yyyy/MM/dd"
+          }}</mat-list-item
+        >
+        <mat-list-item
+          ><strong>Email:</strong>&nbsp;{{ profile()!.email }}</mat-list-item
+        >
+      </mat-list>
+    </mat-card-content>
+
+    <ng-template #loading
+      ><mat-card-content>Loading...</mat-card-content></ng-template
+    >
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="goEdit()">Edit</button>
+    </mat-card-actions>
+  </mat-card>
+</div>
