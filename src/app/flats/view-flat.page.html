@@ -2,7 +2,6 @@
 
 <ng-container *ngIf="flat as f">
   <div class="view-wrap">
-
     <section class="left">
       <div class="main-photo">
         <img [src]="mainImage" [alt]="f.title || (f.city + ' · ' + f.streetName)" />
@@ -18,7 +17,7 @@
           <img [src]="url" alt="photo" />
         </button>
       </div>
-    </section> 
+    </section>
 
     <aside class="right">
       <h1 class="title">{{ f.title || (f.city + ' · ' + f.streetName) }}</h1>
@@ -45,8 +44,15 @@
       <a *ngIf="canEdit()" class="btn primary edit-btn" [routerLink]="['/flats', f.id, 'edit']">Edit</a>
 
       <div class="map-block" *ngIf="address">
-        <iframe class="map" [attr.src]="mapEmbedUrl" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <a class="map-link" [href]="mapLink" target="_blank" rel="noopener">Open in Google Maps</a>
+        <iframe
+          class="map"
+          [src]="mapSafeUrl"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <a class="map-link" [href]="mapLink" target="_blank" rel="noopener">
+          Open in Google Maps
+        </a>
       </div>
     </aside>
   </div>

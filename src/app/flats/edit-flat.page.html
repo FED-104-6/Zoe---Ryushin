@@ -1,0 +1,78 @@
+<form class="form-container" [formGroup]="form" (ngSubmit)="onSubmit($event)" novalidate>
+  <!-- Left -->
+  <div class="form-left">
+    <h2 class="section-title">General info</h2>
+
+    <div class="form-group">
+      <label for="title">Describe the flat in one sentence</label>
+      <textarea id="title" formControlName="title" placeholder="e.g. Bright 2-bedroom apartment near Gastown"></textarea>
+      <span class="max-words">Max 8 words</span>
+    </div>
+
+    <div class="form-group">
+      <label for="rentPrice">Price</label>
+      <input id="rentPrice" type="number" formControlName="rentPrice" />
+    </div>
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <input id="city" type="text" formControlName="city" />
+    </div>
+
+    <div class="form-group">
+      <label for="streetName">Street name</label>
+      <input id="streetName" type="text" formControlName="streetName" />
+    </div>
+
+    <div class="form-group">
+      <label for="streetNumber">Street number</label>
+      <input id="streetNumber" type="number" formControlName="streetNumber" />
+    </div>
+
+    <div class="form-group">
+      <label for="areaSize">Area (㎡)</label>
+      <input id="areaSize" type="number" formControlName="areaSize" />
+    </div>
+
+    <div class="form-group">
+      <label for="yearBuilt">Year built</label>
+      <input id="yearBuilt" type="number" formControlName="yearBuilt" />
+    </div>
+
+    <div class="form-group">
+      <label for="dateAvailable">Available from</label>
+      <input id="dateAvailable" type="date" formControlName="dateAvailable" />
+    </div>
+
+    <label class="checkbox-line">
+      <input type="checkbox" formControlName="hasAC" />
+      Has air conditioning
+    </label>
+
+    <button class="submit-btn" type="submit" [disabled]="disableSubmit">Update</button>
+  </div>
+
+  <!-- Right -->
+  <div class="form-right">
+    <h2 class="section-title">Upload photo</h2>
+
+    <div class="form-group">
+      <div class="upload-box">
+        <img src="/assets/upload-photo.svg" alt="upload icon" class="upload-icon" />
+        <input
+          id="flat-photo"
+          type="file"
+          accept="image/png, image/jpeg"
+          (change)="onFile($event)"
+          class="upload-input"
+          aria-label="Upload photo"
+        />
+        <div class="upload-caption">Photo: JPG or PNG (max 5MB).</div>
+
+        <div class="upload-preview" *ngIf="form.value.image">
+          <img [src]="form.value.image" alt="photo" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

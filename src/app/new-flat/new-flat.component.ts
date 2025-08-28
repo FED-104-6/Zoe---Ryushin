@@ -34,15 +34,21 @@ export class NewFlatComponent {
   uploading = signal(false);
   saving = signal(false);
 
-  // Click to upload
+  /** disable submit when uploading or invalid */
+  get disableSubmit() {
+    return this.uploading() || this.saving() || this.form.invalid;
+  }
+
+  // Click to upload (single file)
   async onFile(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    // Preview mode
+    // local preview first
     const localURL = URL.createObjectURL(file);
     this.form.patchValue({ image: localURL });
+
     this.uploading.set(true);
     try {
       const remoteURL = await this.upload.upload(file, 'flats');
@@ -56,10 +62,6 @@ export class NewFlatComponent {
     }
   }
 
-  onButtonClick(_e: Event) {
-    console.log('[button click]');
-  }
-
   async onSubmit(ev?: Event) {
     ev?.preventDefault();
     ev?.stopPropagation();
@@ -69,6 +71,7 @@ export class NewFlatComponent {
 
     this.saving.set(true);
     try {
+
       const id = await this.flats.create(this.form.value as any);
       console.log('[created]', id);
       this.router.navigate(['/search']);

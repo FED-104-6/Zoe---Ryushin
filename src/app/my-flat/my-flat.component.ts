@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
@@ -8,58 +8,55 @@ import { Flat } from '../models/flat.model';
 @Component({
   standalone: true,
   imports: [CommonModule, RouterModule],
-  template: `
-    <h2>My Flats</h2>
-
-    <table *ngIf="rows().length">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>City</th>
-          <th>Price</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let f of rows()">
-          <td>{{ f.title || (f.city + ' · ' + f.streetName) }}</td>
-          <td>{{ f.city }}</td>
-          <td>\${{ f.rentPrice }}</td>
-          <td>
-            <button (click)="toView(f.id!)">View</button>
-            <button (click)="toEdit(f.id!)">Edit</button>
-            <button (click)="onDelete(f.id!)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="!rows().length">No flats yet.</p>
-  `,
+  templateUrl: './my-flat.component.html',
+  styleUrls: ['./my-flat.component.css'], 
 })
-export class MyFlatComponent {
-  private auth = inject(Auth);
-  private flats = inject(FlatsService);
-  private router = inject(Router);
+export class ViewFlatPage {
+  flat: Flat | null = null;
 
-  rows = signal<Flat[]>([]);
+  // gallery
+  images: string[] = [];
+  mainImage = 'assets/placeholder.jpg';
+  address = '';
+  encodedAddress = '';
+  mapLink = '';
+  mapEmbedUrl = '';
+
+  constructor(
+    private route: ActivatedRoute,
+    private flats: FlatsService,
+    private auth: Auth
+  ) {}
 
   async ngOnInit() {
-    const uid = this.auth.currentUser?.uid || '';
-    if (!uid) return;
-    this.rows.set(await this.flats.myFlats(uid));
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.flat = await this.flats.getOne(id);
+
+    const anyFlat: any = this.flat;
+    let list: string[] = [];
+    if (anyFlat && Array.isArray(anyFlat.images)) {
+      const first = anyFlat.images[0];
+      list = Array.isArray(first) ? (first as string[]) : (anyFlat.images as string[]);
+    }
+    if (!list.length && this.flat?.image) list = [this.flat.image];
+    this.images = (list || []).filter(Boolean);
+    this.mainImage = this.images[0] || this.mainImage;
+
+    const num  = this.flat?.streetNumber ? String(this.flat?.streetNumber) + ' ' : '';
+    const name = this.flat?.streetName || '';
+    const city = this.flat?.city ? ', ' + this.flat?.city : '';
+    this.address = `${num}${name}${city}`.trim();
+
+    this.encodedAddress = encodeURIComponent(this.address);
+    this.mapLink   = `https://www.google.com/maps/search/?api=1&query=${this.encodedAddress}`;
+    this.mapEmbedUrl = `https://www.google.com/maps?q=${this.encodedAddress}&output=embed`;
   }
 
-  toView(id: string) {
-    this.router.navigate(['/flats', id]);
+  selectImage(url: string) {
+    this.mainImage = url || this.mainImage;
   }
 
-  toEdit(id: string) {
-    this.router.navigate(['/flats', id, 'edit']);
-  }
-
-  async onDelete(id: string) {
-    await this.flats.remove(id);
-    this.rows.set(this.rows().filter((r) => r.id !== id));
+  canEdit() {
+    return this.auth.currentUser?.uid === this.flat?.ownerId;
   }
 }
