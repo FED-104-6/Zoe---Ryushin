@@ -1,32 +1,105 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+:host {
+  display: block;
+  padding: 40px 60px;
+  background: #fff;
+  font-family: 'Manrope', sans-serif;
+}
 
-header { position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
-.logo { font-size: 24px; font-weight: 600; color: #272727; }
-.logo span { color: #5271FF; }
-.center-nav { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 48px; }
-nav a { text-decoration: none; color: #272727; font-size: 16px; }
-.logout { font-size: 16px; color: #272727; cursor: pointer; }
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #272727;
+  margin-bottom: 20px;
+}
 
-.sort-bar { font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-.sort-bar button { font-size: 14px; padding: 6px 12px; border: 1px solid #272727; background: none; border-radius: 4px; cursor: pointer; }
-.sort-bar .clear-all { margin-left: auto; border-color: #ef4444; color: #ef4444; }
+/* sort bar */
+.sort-bar {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.sort-bar button {
+  font-size: 14px;
+  padding: 6px 12px;
+  border: 1px solid #272727;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
 
-.flat-grid { display: grid; grid-template-columns: repeat(3, 305px); gap: 36px 24px; }
-.flat-card { display: flex; flex-direction: column; cursor: pointer; }
+/* grid & card — same sizes as your HTML */
+.flat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 305px);
+  gap: 36px 24px; /* row gap 36, column gap 24 */
+}
 
-.flat-image { width: 305px; height: 305px; background-size: cover; background-position: center; border-radius: 5px; position: relative; }
-.fav-button { position: absolute; bottom: 12px; right: 12px; background: #fff; border: none; border-radius: 8px; width: 37px; height: 37px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 4px rgba(0,0,0,.1); cursor: pointer; }
-.fav-button img { width: 29px; height: 29px; }
+.flat-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
 
-.info { margin-top: 12px; }
-.info h4 { font-size: 18px; font-weight: 600; color: #272727; margin-bottom: 4px; }
-.location { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #555; margin-bottom: 6px; }
-.location img { width: 24px; height: 24px; }
-.price { font-size: 24px; font-weight: 600; color: #272727; }
-.price span { font-size: 18px; font-weight: 600; color: #272727; }
+.flat-image {
+  width: 305px;
+  height: 305px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  position: relative;
+  background-color: #f3f3f3;
+}
 
-/* Empty state */
-.empty { border: 1px dashed #d1d5db; border-radius: 8px; padding: 24px; text-align: center; max-width: 640px; margin: 40px auto; }
-.empty h3 { font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 8px; }
-.empty p { color: #6b7280; margin-bottom: 16px; }
-.empty .go-search { display: inline-block; padding: 8px 12px; border: 1px solid #272727; border-radius: 6px; text-decoration: none; color: #272727; }
+/* bottom-right delete (trash) button */
+.fav-button {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 37px;
+  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.fav-button img {
+  width: 29px;
+  height: 29px;
+}
+
+/* text blocks */
+.info {
+  margin-top: 12px;
+}
+.info h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #272727;
+  margin-bottom: 4px;
+}
+.location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 6px;
+}
+.location img {
+  width: 24px;
+  height: 24px;
+}
+.price {
+  font-size: 24px;
+  font-weight: 600;
+  color: #272727;
+}
+.price span {
+  font-size: 18px;
+  font-weight: 600;
+  color: #272727;
+}

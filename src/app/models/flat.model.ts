@@ -1,14 +1,20 @@
 export interface Flat {
   id?: string;
+  title?: string;
   city: string;
   streetName: string;
   streetNumber: number;
   areaSize: number;
-  hasAC: boolean;
   yearBuilt: number;
+  hasAC: boolean;
   rentPrice: number;
-  dateAvailable: string; 
+  dateAvailable: string;
+
   ownerId: string;
-  image?: string;
-  title?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+
+  image?: string;        
+  images?: string[];    
+  createdAt?: number;
 }

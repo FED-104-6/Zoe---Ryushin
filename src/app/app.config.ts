@@ -1,36 +1,33 @@
-import {
-  ApplicationConfig,
-  provideBrowserGlobalErrorListeners,
-  provideZoneChangeDetection,
-  inject,
-} from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 
-import { initializeApp } from 'firebase/app';
-import { FirebaseApp, provideFirebaseApp } from '@angular/fire/app';
-import {
-  browserLocalPersistence,
-  browserPopupRedirectResolver,
-  initializeAuth,
-  provideAuth,
-} from '@angular/fire/auth';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideAuth } from '@angular/fire/auth';
+import { getAuth, initializeAuth, browserLocalPersistence, browserPopupRedirectResolver } from 'firebase/auth';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideStorage, getStorage } from '@angular/fire/storage';
 import { environment } from '../environments/environment';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getApp } from 'firebase/app';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => {
-      const app = inject(FirebaseApp);
-      return initializeAuth(app, {
-        persistence: browserLocalPersistence,
-        popupRedirectResolver: browserPopupRedirectResolver,
-      });
+      
+      const app = getApp();
+      try {
+        return getAuth(app);
+      } catch {
+        return initializeAuth(app, {
+          persistence: browserLocalPersistence,
+          popupRedirectResolver: browserPopupRedirectResolver,
+        });
+      }
     }),
+    
     provideFirestore(() => getFirestore()),
-    provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideStorage(() => getStorage()),
   ],
 };

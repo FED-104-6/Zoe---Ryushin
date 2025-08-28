@@ -1,51 +1,72 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Flat } from '../models/flat.model';
-import { FlatsService } from '../services/flats.service';
 import { FavoritesService } from '../services/favorites.service';
+import { FlatsService } from '../services/flats.service';
+import { Flat } from '../models/flat.model';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-favorites',
   standalone: true,
+  selector: 'app-favorites',
   imports: [CommonModule, RouterModule],
   templateUrl: './favorites.component.html',
-  styleUrls: ['./favorites.component.css'],
+  styleUrls: ['./favorites.component.css']
 })
-export class FavoritesComponent implements OnInit {
-  view: Flat[] = [];
-  sort: 'priceAsc' | 'priceDesc' | null = null;
+export class FavoritesComponent implements OnDestroy {
+  private favs = inject(FavoritesService);
+  private flats = inject(FlatsService);
+  private router = inject(Router);
 
-  constructor(
-    private flats: FlatsService,
-    private fav: FavoritesService,
-    private router: Router
-  ) {}
+  private sub?: Subscription;
 
-  ngOnInit(): void { this.refresh(); }
+  all: Flat[] = [];
+  view = signal<Flat[]>([]);
+  favIds = signal<string[]>([]);
 
-  private refresh() {
-    const all = this.flats.listAll();
-    const ids = this.fav.listIds();
-    this.view = all.filter(f => !!f.id && ids.includes(f.id!));
-    this.view = this.sortList([...this.view]);
+  async ngOnInit() {
+    this.sub = this.flats.all$().subscribe(rows => {
+      this.all = rows ?? [];
+      this.recompute();
+    });
+
+    try {
+      this.favIds.set(await this.favs.listIds());
+      this.recompute();
+    } catch { }
   }
 
-  openFlat(f: Flat) { if (f.id) this.router.navigate(['/flats', f.id]); }
+  ngOnDestroy() { this.sub?.unsubscribe(); }
 
-  remove(id?: string) { if (!id) return; this.fav.toggle(id); this.refresh(); }
+  private recompute() {
+    const ids = new Set(this.favIds());
+    this.view.set(this.all.filter(f => f.id && ids.has(f.id!)));
+  }
 
-  clearAll() { this.fav.clearAll(); this.refresh(); }
+  sort(dir: 'asc' | 'desc') {
+    const rows = [...this.view()];
+    rows.sort((a, b) =>
+      dir === 'asc'
+        ? Number(a.rentPrice ?? 0) - Number(b.rentPrice ?? 0)
+        : Number(b.rentPrice ?? 0) - Number(a.rentPrice ?? 0)
+    );
+    this.view.set(rows);
+  }
 
-  sortBy(kind: 'priceAsc' | 'priceDesc') { this.sort = kind; this.view = this.sortList([...this.view]); }
+  open(f: Flat) {
+    if (f.id) this.router.navigate(['/flats', f.id]);
+  }
 
-  private sortList(list: Flat[]): Flat[] {
-    switch (this.sort) {
-      case 'priceAsc':  return list.sort((a, b) => a.rentPrice - b.rentPrice);
-      case 'priceDesc': return list.sort((a, b) => b.rentPrice - a.rentPrice);
-      default:          return list;
+  async remove(e: Event, id?: string) {
+    e.preventDefault();
+    e.stopPropagation(); 
+    if (!id) return;
+    try {
+      await this.favs.toggle(id);                 
+      this.favIds.set(await this.favs.listIds()); 
+      this.recompute();                           
+    } catch (err) {
+      console.error('[remove favorite failed]', err);
     }
   }
-
-  get isEmpty(): boolean { return this.view.length === 0; }
 }

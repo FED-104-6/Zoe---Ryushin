@@ -1,0 +1,51 @@
+<main class="main-container">
+  <section class="content">
+    <div class="sort-bar">
+      <h2 style="margin:0">My Flat</h2>
+      <span class="spacer"></span>
+      <button class="btn btn-primary" (click)="toNew()">Insert New Flat</button>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px">
+      <table class="table table--flats">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>City</th>
+            <th>Street</th>
+            <th>No.</th>
+            <th>Area</th>
+            <th>AC</th>
+            <th>Year</th>
+            <th>Rent</th>
+            <th>Available</th>
+            <th class="col--actions">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let f of (myFlats$ | async)">
+            <td>{{ f.title || (f.city + ' · ' + f.streetName) }}</td>
+            <td>{{ f.city }}</td>
+            <td>{{ f.streetName }}</td>
+            <td>{{ f.streetNumber }}</td>
+            <td>{{ f.areaSize }} m²</td>
+            <td><span class="tag">{{ f.hasAC ? 'Yes' : 'No' }}</span></td>
+            <td>{{ f.yearBuilt }}</td>
+            <td>${{ f.rentPrice }}/month</td>
+            <td>{{ f.dateAvailable | date }}</td>
+            <td class="actions">
+              <button class="btn btn-ghost btn-sm" (click)="toView(f.id!)">View</button>
+              <button class="btn btn-ghost btn-sm" (click)="toEdit(f.id!)">Edit</button>
+              <button class="btn btn-ghost btn-sm danger" (click)="remove(f.id!)">Delete</button>
+            </td>
+          </tr>
+
+          <tr *ngIf="(myFlats$ | async)?.length === 0">
+            <td colspan="10" class="empty">No flats yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

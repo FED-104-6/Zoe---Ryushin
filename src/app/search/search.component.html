@@ -1,24 +1,13 @@
-<header>
-  <div class="logo">Rent<span>Ease</span></div>
-  <nav class="nav-center">
-    <a routerLink="/search">Search</a>
-    <a routerLink="/favorites">My Favorites</a>
-    <a routerLink="/new-flat">Add a New Flat</a>
-    <a routerLink="/setting">Setting</a>
-  </nav>
-  <div class="logout">Log out</div>
-</header>
-
 <div class="main-container" [formGroup]="form">
   <!-- Filter panel -->
   <aside class="filter-panel">
     <h3>Filter</h3>
 
     <label for="city">City</label>
-    <input id="city" type="text" formControlName="city" />
+    <input type="text" id="city" formControlName="city" />
 
     <label for="street">Street</label>
-    <input id="street" type="text" formControlName="street" />
+    <input type="text" id="street" formControlName="street" />
 
     <label>Price Range</label>
     <div class="range-group">
@@ -35,7 +24,6 @@
     </div>
 
     <button type="button" (click)="applyFilters()">Apply</button>
-    <button type="button" class="clear-btn" (click)="clearFilters()">Clear</button>
   </aside>
 
   <!-- Results -->
@@ -44,32 +32,39 @@
       Sorted by
       <button type="button" (click)="sortBy('priceAsc')">Price ↑</button>
       <button type="button" (click)="sortBy('priceDesc')">Price ↓</button>
-      <button type="button" (click)="sortBy('area')">Area</button>
-      <button type="button" (click)="sortBy('city')">City</button>
+      <span class="sep">|</span>
+      <button type="button" (click)="sortBy('cityAsc')">City A–Z</button>
+      <button type="button" (click)="sortBy('cityDesc')">City Z–A</button>
+      <span class="sep">|</span>
+      <button type="button" (click)="sortBy('areaAsc')">Area ↑</button>
+      <button type="button" (click)="sortBy('areaDesc')">Area ↓</button>
     </div>
 
     <div class="flat-grid">
-      <div class="flat-card" *ngFor="let f of view" (click)="openFlat(f)">
+      <div class="flat-card" *ngFor="let f of view" (click)="toView(f.id!)">
         <div class="image-container">
-          <img [src]="'/' + f.image" alt="Flat" />
-          <button
+          <img
+            [src]="f.image || 'assets/placeholder.jpg'"
+            [alt]="f.title || (f.city + ' ' + f.streetName)"
+          />
+          <div
             class="favorite-icon"
             [attr.aria-pressed]="isFav(f.id)"
             (click)="toggleFav($event, f.id)"
-            type="button"
           >
-            <img src="/assets/favorite.svg" width="20" height="20" alt="favorite" />
-          </button>
+            <img src="assets/favorite.svg" width="20" height="20" alt="favorite" />
+          </div>
         </div>
 
         <div class="info">
           <h4>{{ f.title || (f.city + ' · ' + f.streetName) }}</h4>
           <div class="location">
-            <img src="/assets/location.svg" alt="location" />
+            <img src="assets/location.svg" alt="location" />
             {{ f.streetName }}, {{ f.city }}
           </div>
           <div class="price">
-            ${{ f.rentPrice | number:'1.0-0' }} <span>/month</span>
+            {{ f.rentPrice | currency:'USD':'symbol':'1.0-0' }}
+            <span>/month</span>
           </div>
         </div>
       </div>
