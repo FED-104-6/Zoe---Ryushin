@@ -1,0 +1,29 @@
+<a [routerLink]="['/flats', flatId]">← Back</a>
+<hr />
+<section>
+  <h3>Messages</h3>
+  <div *ngIf="messages?.length; else noMsgs">
+    <article *ngFor="let m of messages" class="msg">
+      <div class="meta">
+        <span class="when"
+          >{{ m.createdAt?.toDate() | date:'y/MM/dd HH:mm' }}</span
+        >
+        <span class="from">— {{ m.senderName }} ({{ m.senderEmail }})</span>
+      </div>
+      <p class="body">{{ m.content }}</p>
+    </article>
+  </div>
+  <ng-template #noMsgs><p class="muted">No messages yet.</p></ng-template>
+
+  <form *ngIf="!isOwner" (ngSubmit)="send()" class="send-form">
+    <label for="msg">Send a message to the owner</label>
+    <textarea
+      id="msg"
+      name="msg"
+      [(ngModel)]="draft"
+      rows="4"
+      required
+    ></textarea>
+    <button type="submit" [disabled]="sending || !draft?.trim()">Send</button>
+  </form>
+</section>
