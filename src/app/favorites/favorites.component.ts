@@ -1,78 +1,72 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FavoritesService } from '../services/favorites.service';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
+  selector: 'app-favorites',
   imports: [CommonModule, RouterModule],
-  template: `
-    <h2>My Favorites</h2>
-
-    <div class="sort">
-      <button (click)="sort('asc')">Price ↑</button>
-      <button (click)="sort('desc')">Price ↓</button>
-    </div>
-
-    <div *ngIf="rows().length; else empty">
-      <div
-        class="flat-card"
-        *ngFor="let f of rows()"
-        (click)="toView(f.id!)"
-      >
-        <img
-          [src]="f.image || 'assets/placeholder.jpg'"
-          width="160"
-          height="100"
-        />
-        <div>
-          <div>
-            {{ f.title || (f.city + ' · ' + f.streetName) }}
-          </div>
-          <div>\${{ f.rentPrice }}</div>
-          <button (click)="remove($event, f.id!)">Remove</button>
-        </div>
-      </div>
-    </div>
-
-    <ng-template #empty>
-      <p>No favorites yet.</p>
-    </ng-template>
-  `,
+  templateUrl: './favorites.component.html',
+  styleUrls: ['./favorites.component.css']
 })
-export class FavoritesComponent {
+export class FavoritesComponent implements OnDestroy {
   private favs = inject(FavoritesService);
   private flats = inject(FlatsService);
   private router = inject(Router);
 
-  rows = signal<Flat[]>([]);
+  private sub?: Subscription;
+
+  all: Flat[] = [];
+  view = signal<Flat[]>([]);
+  favIds = signal<string[]>([]);
 
   async ngOnInit() {
-    const ids = await this.favs.listIds();
-    const all = await new Promise<Flat[]>(resolve =>
-      this.flats.all$().subscribe(resolve)
-    );
-    this.rows.set(all.filter(r => ids.includes(r.id!)));
+    this.sub = this.flats.all$().subscribe(rows => {
+      this.all = rows ?? [];
+      this.recompute();
+    });
+
+    try {
+      this.favIds.set(await this.favs.listIds());
+      this.recompute();
+    } catch { }
   }
 
-  toView(id: string) {
-    this.router.navigate(['/flats', id]);
-  }
+  ngOnDestroy() { this.sub?.unsubscribe(); }
 
-  async remove(e: Event, id: string) {
-    e.stopPropagation();
-    await this.favs.toggle(id);
-    this.rows.set(this.rows().filter(r => r.id !== id));
+  private recompute() {
+    const ids = new Set(this.favIds());
+    this.view.set(this.all.filter(f => f.id && ids.has(f.id!)));
   }
 
   sort(dir: 'asc' | 'desc') {
-    const rows = [...this.rows()];
+    const rows = [...this.view()];
     rows.sort((a, b) =>
-      dir === 'asc' ? a.rentPrice - b.rentPrice : b.rentPrice - a.rentPrice
+      dir === 'asc'
+        ? Number(a.rentPrice ?? 0) - Number(b.rentPrice ?? 0)
+        : Number(b.rentPrice ?? 0) - Number(a.rentPrice ?? 0)
     );
-    this.rows.set(rows);
+    this.view.set(rows);
+  }
+
+  open(f: Flat) {
+    if (f.id) this.router.navigate(['/flats', f.id]);
+  }
+
+  async remove(e: Event, id?: string) {
+    e.preventDefault();
+    e.stopPropagation(); 
+    if (!id) return;
+    try {
+      await this.favs.toggle(id);                 
+      this.favIds.set(await this.favs.listIds()); 
+      this.recompute();                           
+    } catch (err) {
+      console.error('[remove favorite failed]', err);
+    }
   }
 }
-

@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
@@ -9,26 +9,52 @@ import { Flat } from '../models/flat.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <a routerLink="/search" class="btn btn-ghost" style="margin:12px 0;display:inline-block">← Back to Search</a>
-    <ng-container *ngIf="flat as f">
-      <h2>{{ f.title || (f.city + ' · ' + f.streetName) }}</h2>
-      <div class="meta">{{f.streetNumber}} {{f.streetName}}, {{f.city}}</div>
-      <div class="price">${{f.rentPrice}} / month</div>
-      <div class="owner" *ngIf="f.ownerName || f.ownerEmail">Owner: {{f.ownerName}} • {{f.ownerEmail}}</div>
+    <a routerLink="/search" class="btn">← Back to Search</a>
 
-      <div class="gallery" *ngIf="f.images?.length">
-        <img *ngFor="let url of f.images" [src]="url" alt="image" />
+    <ng-container *ngIf="flat">
+      <h2>{{ flat.title || (flat.city + ' · ' + flat.streetName) }}</h2>
+      <div class="meta">{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</div>
+      <div class="price">{{ flat.rentPrice | currency:'USD':'symbol':'1.0-0' }} / month</div>
+
+      <div class="owner" *ngIf="flat.ownerName || flat.ownerEmail">
+        Owner: {{ flat.ownerName }} <span *ngIf="flat.ownerEmail">• {{ flat.ownerEmail }}</span>
       </div>
-      
-      <button *ngIf="canEdit(f)" [routerLink]="['/flats', f.id, 'edit']">Edit</button>
-</ng-container>
-`
+
+      <div class="gallery" *ngIf="images.length">
+        <img *ngFor="let url of images" [src]="url" alt="image" />
+      </div>
+
+      <button *ngIf="canEdit()" [routerLink]="['/flats', flat.id, 'edit']">Edit</button>
+    </ng-container>
+  `
 })
-export default class ViewFlatPage {
-  private route = inject(ActivatedRoute);
-  private flats = inject(FlatsService);
-  private auth = inject(Auth);
-  flat!: Flat | null;
-  async ngOnInit(){ this.flat = await this.flats.getOne(this.route.snapshot.paramMap.get('id')!); }
-  canEdit(f: Flat){ return this.auth.currentUser?.uid === f.ownerId; }
-} 
+export default class ViewFlatPage implements OnInit {
+  flat: Flat | null = null;
+  images: string[] = []; 
+
+  constructor(
+    private route: ActivatedRoute,
+    private flats: FlatsService,
+    private auth: Auth
+  ) {}
+
+  async ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.flat = await this.flats.getOne(id);
+
+    this.images = [];
+    const anyFlat: any = this.flat;
+
+    if (anyFlat && Array.isArray(anyFlat.images)) {
+      const arr = anyFlat.images;
+      this.images = Array.isArray(arr[0]) ? (arr[0] as string[]) : (arr as string[]);
+    }
+    else if (this.flat?.image) {
+      this.images = [this.flat.image];
+    }
+  }
+
+  canEdit() {
+    return this.auth.currentUser?.uid === this.flat?.ownerId;
+  }
+}
