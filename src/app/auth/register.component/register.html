@@ -13,9 +13,19 @@
               required
             />
             <mat-error
-              *ngIf="form.get('firstName')?.touched && form.get('firstName')?.hasError('required')"
+              *ngIf="form.get('firstName')?.hasError('required') && (form.get('firstName')?.touched || submitted)"
+              aria-live="polite"
             >
               First name is required
+            </mat-error>
+            <mat-error
+              *ngIf="form.get('firstName')?.hasError('minlength') && (form.get('firstName')?.touched || submitted)"
+              aria-live="polite"
+            >
+              First name must be at least 2 characters
+              <ng-container *ngIf="form.get('firstName')?.value as v"
+                >(current: {{(v?.length || 0)}})</ng-container
+              >
             </mat-error>
           </mat-form-field>
 
@@ -28,9 +38,17 @@
               required
             />
             <mat-error
-              *ngIf="form.get('lastName')?.touched && form.get('lastName')?.hasError('required')"
+              *ngIf="form.get('lastName')?.hasError('required') && (form.get('lastName')?.touched || submitted)"
             >
               Last name is required
+            </mat-error>
+            <mat-error
+              *ngIf="form.get('lastName')?.hasError('minlength') && (form.get('lastName')?.touched || submitted)"
+            >
+              Last name must be at least 2 characters
+              <ng-container *ngIf="form.get('lastName')?.value as v"
+                >(current: {{(v?.length || 0)}})</ng-container
+              >
             </mat-error>
           </mat-form-field>
         </div>
@@ -39,9 +57,19 @@
           <mat-label>Birth Date</mat-label>
           <input matInput type="date" formControlName="birthDate" required />
           <mat-error
-            *ngIf="form.get('birthDate')?.touched && form.get('birthDate')?.hasError('required')"
+            *ngIf="(form.get('birthDate')?.touched || submitted) && form.get('birthDate')?.hasError('required')"
           >
             Birth date is required
+          </mat-error>
+          <mat-error
+            *ngIf="(form.get('birthDate')?.touched || submitted) && form.hasError('ageOutOfRange')"
+          >
+            Enter a valid birth date
+          </mat-error>
+          <mat-error
+            *ngIf="(form.get('birthDate')?.touched || submitted) && form.hasError('invalidBirthDate')"
+          >
+            Enter a valid birth date
           </mat-error>
         </mat-form-field>
 
@@ -55,12 +83,12 @@
             required
           />
           <mat-error
-            *ngIf="form.get('email')?.touched && form.get('email')?.hasError('required')"
+            *ngIf="form.get('email')?.hasError('required') && (form.get('email')?.touched || submitted)"
           >
             Email is required
           </mat-error>
           <mat-error
-            *ngIf="form.get('email')?.touched && form.get('email')?.hasError('email')"
+            *ngIf="form.get('email')?.hasError('email') && (form.get('email')?.touched || submitted)"
           >
             Enter a valid email
           </mat-error>
@@ -76,14 +104,19 @@
             required
           />
           <mat-error
-            *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')"
+            *ngIf="(form.get('password')?.touched || submitted) && form.get('password')?.hasError('required')"
           >
             Password is required
           </mat-error>
           <mat-error
-            *ngIf="form.get('password')?.touched && form.get('password')?.hasError('minlength')"
+            *ngIf="(form.get('password')?.touched || submitted) && form.get('password')?.hasError('minlength')"
           >
             Password must be at least 6 characters
+          </mat-error>
+          <mat-error
+            *ngIf="form.get('password')?.hasError('pattern') && (form.get('password')?.touched || submitted)"
+          >
+            Password must include letters, numbers, and a special character.
           </mat-error>
         </mat-form-field>
 
@@ -97,11 +130,8 @@
             required
           />
           <mat-error
-            *ngIf="form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('required')"
+            *ngIf="(form.touched || submitted) && form.hasError('passwordMismatch')"
           >
-            Confirm password is required
-          </mat-error>
-          <mat-error *ngIf="form.touched && form.hasError('passwordMismatch')">
             Passwords do not match
           </mat-error>
         </mat-form-field>
@@ -111,7 +141,7 @@
             class="buttonSubmit"
             mat-raised-button
             type="submit"
-            [disabled]="form.invalid"
+            [disabled]="loading || form.invalid"
           >
             Register
           </button>

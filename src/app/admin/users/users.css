@@ -1,0 +1,89 @@
+:host {
+  display: block;
+}
+
+.users-card {
+  padding-bottom: 8px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: flex-end;
+}
+
+.filter-field {
+  width: 320px;
+  max-width: 100%;
+}
+
+.w100 {
+  width: 100px;
+}
+.w120 {
+  width: 120px;
+}
+
+.table-container {
+  overflow: auto;
+  max-height: calc(100vh - 320px);
+  margin-top: 8px;
+}
+
+table {
+  width: 100%;
+}
+
+.name {
+  white-space: nowrap;
+}
+
+.email {
+  white-space: nowrap;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* 役割バッジ（mat-chipを使わない） */
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.role-badge.admin {
+  background: rgba(33, 150, 243, 0.15);
+  color: #1976d2;
+}
+
+.role-badge.user {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* データ0件時の行 */
+.empty-row td {
+  text-align: center;
+  padding: 24px 8px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-field,
+  .w100,
+  .w120 {
+    width: 100% !important;
+  }
+}

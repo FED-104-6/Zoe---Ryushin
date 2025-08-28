@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { adminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'search' },
@@ -11,10 +12,42 @@ export const routes: Routes = [
   { path: 'flats/:id',       loadComponent: () => import('./flats/view-flat.page').then(m => m.default) },
   { path: 'flats/:id/edit',  canActivate: [() => import('./flats/owner-edit.guard').then(m => m.ownerEditGuard)],
                              loadComponent: () => import('./flats/edit-flat.page').then(m => m.default) },
-
-  { path: 'login', loadComponent: () => import('./auth/login.component/login.component').then(m => m.LoginComponent) },
-  { path: 'register', loadComponent: () => import('./auth/register.component/register').then(m => m.RegisterComponent) },
-
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./auth/login.component/login.component').then(
+        (m) => m.LoginComponent
+      ),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./auth/register.component/register').then(
+        (m) => m.RegisterComponent
+      ),
+  },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./profile/profile.component/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+  },
+  {
+    path: 'profile/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./profile/profile.edit.component/profile.edit.component').then(
+        (m) => m.ProfileEditComponent
+      ),
+  },
+  {
+    path: 'users',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./admin/users/users').then((m) => m.UsersComponent),
+  },
   { path: 'my-flat',   loadComponent: () => import('./my-flat/my-flat.component').then(m => m.MyFlatComponent) },
   { path: '**', redirectTo: 'search' },
 ];

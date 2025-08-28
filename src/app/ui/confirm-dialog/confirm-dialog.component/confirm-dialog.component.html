@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Confirmation</h2>
+
+<mat-dialog-content>
+  Would you like to save these changes to your profile?
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close="cancel">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="'save'">
+    Save
+  </button>
+</mat-dialog-actions>

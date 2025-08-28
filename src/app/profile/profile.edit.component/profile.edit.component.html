@@ -1,0 +1,91 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-title>My Profile</mat-card-title>
+
+    <mat-card-content *ngIf="profile(); else loading">
+      <form [formGroup]="form" (ngSubmit)="onConfirm()" class="grid">
+        <div class="name-row">
+          <mat-form-field appearance="fill">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required />
+            <mat-error *ngIf="form.get('firstName')?.hasError('required')"
+              >First name is required</mat-error
+            >
+            <mat-error *ngIf="form.get('firstName')?.hasError('minlength')"
+              >At least 2 characters</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required />
+            <mat-error *ngIf="form.get('lastName')?.hasError('required')"
+              >Last name is required</mat-error
+            >
+            <mat-error *ngIf="form.get('lastName')?.hasError('minlength')"
+              >At least 2 characters</mat-error
+            >
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>Birth Date</mat-label>
+          <input matInput type="date" formControlName="birthDate" required />
+          <mat-error *ngIf="form.get('birthDate')?.hasError('required')"
+            >Birth date is required</mat-error
+          >
+          <mat-error *ngIf="form.get('birthDate')?.hasError('ageRange')"
+            >Age must be between 18 and 120</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" required />
+          <mat-hint>Managed by auth; not editable here</mat-hint>
+        </mat-form-field>
+
+        <!-- Password change (optional). If provided, must meet complexity and match confirm. -->
+        <div class="name-row">
+          <mat-form-field appearance="fill">
+            <mat-label>New Password (optional)</mat-label>
+            <input matInput type="password" formControlName="password" />
+            <mat-hint>Min 6, letters, numbers &amp; special</mat-hint>
+            <mat-error *ngIf="form.get('password')?.hasError('passwordWeak')"
+              >Password must include letters, numbers and a special
+              character</mat-error
+            >
+            <mat-error *ngIf="form.get('password')?.hasError('minlength')"
+              >At least 6 characters</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" />
+            <mat-error *ngIf="form.hasError('passwordsMismatch')"
+              >Passwords do not match</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <mat-card-actions align="end">
+          <button mat-stroked-button type="button" (click)="goProfile()">
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid"
+          >
+            Save Changes
+          </button>
+        </mat-card-actions>
+      </form>
+    </mat-card-content>
+
+    <ng-template #loading
+      ><mat-card-content>Loading...</mat-card-content></ng-template
+    >
+  </mat-card>
+</div>

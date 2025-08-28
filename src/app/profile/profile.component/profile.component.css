@@ -3,19 +3,50 @@
   justify-content: center;
   padding: 24px;
 }
+
 .card {
-  width: 520px;
+  width: 100%;
+  max-width: 640px;
 }
-mat-list-item {
+
+.card-header {
+  align-items: center;
+}
+
+.avatar {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  opacity: 0.72;
+}
+
+.details .mat-mdc-list-item {
   padding-left: 0;
 }
+
 mat-card-title {
   font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 12px;
+  font-weight: 700;
 }
 
 mat-list-item strong {
-  width: 120px;
-  display: inline-block;
+  width: 140px;
+  min-width: 140px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+}
+
+.value {
+  font-variation-settings: "wght" 450;
+}
+
+mat-card-actions {
+  padding: 16px 16px 20px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
