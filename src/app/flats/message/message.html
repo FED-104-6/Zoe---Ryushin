@@ -1,29 +1,39 @@
 <hr />
-<section>
-  <h3>Messages</h3>
+<section class="messages-block" aria-labelledby="messages-title">
+  <h3 id="messages-title" class="section-title">Messages</h3>
+
+  <!-- Existing messages -->
   <div *ngIf="messages?.length; else noMsgs">
     <article *ngFor="let m of messages" class="msg">
-      <div class="meta">
+      <header class="meta">
         <span class="when"
           >{{ m.createdAt?.toDate() | date:'y/MM/dd HH:mm' }}</span
         >
         <span class="from">— {{ m.senderName }} ({{ m.senderEmail }})</span>
-      </div>
+      </header>
       <p class="body">{{ m.content }}</p>
     </article>
   </div>
-  <ng-template #noMsgs><p class="muted">No messages yet.</p></ng-template>
+  <ng-template #noMsgs>
+    <p class="muted empty">No messages yet.</p>
+  </ng-template>
 
-  <form *ngIf="!isOwner" (ngSubmit)="send()" class="send-form">
-    <label for="msg">Send a message to the owner</label>
+  <!-- Compose form (hidden for owner) -->
+  <form *ngIf="!isOwner" (ngSubmit)="send()" class="send-form" novalidate>
+    <label for="msg" class="form-label">Send a message to the owner</label>
     <textarea
       id="msg"
       name="msg"
       [(ngModel)]="draft"
       rows="4"
+      placeholder="Write your message…"
       required
     ></textarea>
-    <button type="submit" [disabled]="sending || !(draft || '').trim()">
+    <button
+      type="submit"
+      class="send-btn"
+      [disabled]="sending || !(draft || '').trim()"
+    >
       Send
     </button>
   </form>
