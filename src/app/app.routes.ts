@@ -69,6 +69,23 @@ export const routes: Routes = [
         (m) => m.ProfileEditComponent
       ),
   },
+  // View other user's profile by id (used from Admin "Open Profile" button)
+  {
+    path: 'profile/:uid',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./profile/profile.component/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+  },
+  {
+    path: 'profile/edit/:uid',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./profile/profile.edit.component/profile.edit.component').then(
+        (m) => m.ProfileEditComponent
+      ),
+  },
   {
     path: 'users',
     canActivate: [adminGuard],

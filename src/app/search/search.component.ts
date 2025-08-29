@@ -46,6 +46,11 @@ export class SearchComponent {
   async ngOnInit() {
     // live list from Firestore
     this.flats.all$().subscribe((rows) => {
+      console.log(
+        'flats loaded:',
+        rows?.length,
+        rows?.map((r) => r.id)
+      );
       this.all = rows ?? [];
       this.applyFilters();
     });
