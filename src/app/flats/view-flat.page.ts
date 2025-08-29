@@ -18,6 +18,7 @@ export class ViewFlatPage {
   images: string[] = [];
   mainImage = 'assets/placeholder.jpg';
 
+
   address = '';
   encodedAddress = '';
   mapLink = '';
@@ -26,10 +27,11 @@ export class ViewFlatPage {
 
   private sanitizer = inject(DomSanitizer);       
 
+
   constructor(
     private route: ActivatedRoute,
     private flats: FlatsService,
-    private auth: Auth
+    public auth: Auth
   ) {}
 
   async ngOnInit() {
@@ -59,6 +61,7 @@ export class ViewFlatPage {
       this.mapEmbedUrl = `https://maps.google.com/maps?q=${this.encodedAddress}&output=embed`;
       this.mapLink     = `https://www.google.com/maps/search/?api=1&query=${this.encodedAddress}`;
       this.mapSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.mapEmbedUrl); // ★
+
     }
   }
 

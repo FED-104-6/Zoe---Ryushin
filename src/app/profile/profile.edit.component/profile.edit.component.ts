@@ -31,6 +31,7 @@ export class ProfileEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private editUid!: string;
 
   form = this.fb.nonNullable.group(
     {
@@ -138,7 +139,7 @@ export class ProfileEditComponent implements OnInit {
   }
 
   goProfile() {
-    this.router.navigateByUrl('/profile');
+    this.router.navigate(['/profile', this.uid]);
   }
 
   async onSubmit() {
