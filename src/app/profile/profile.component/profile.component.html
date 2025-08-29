@@ -4,10 +4,9 @@
       <mat-icon class="avatar" aria-hidden="true">account_circle</mat-icon>
       <div>
         <mat-card-title>My Profile</mat-card-title>
-        <mat-card-subtitle *ngIf="profile()"
-          >{{ profile()!.firstName }}
-          {{ profile()!.lastName }}</mat-card-subtitle
-        >
+        <mat-card-subtitle *ngIf="profile()">
+          {{ profile()!.firstName }} {{ profile()!.lastName }}
+        </mat-card-subtitle>
       </div>
     </mat-card-header>
 

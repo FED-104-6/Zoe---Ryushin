@@ -1,0 +1,18 @@
+.msg {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+.msg .meta {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+.muted {
+  opacity: 0.6;
+}
+.send-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

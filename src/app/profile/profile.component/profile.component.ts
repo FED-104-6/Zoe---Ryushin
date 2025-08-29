@@ -78,6 +78,8 @@ export class ProfileComponent implements OnInit {
   }
 
   goEdit() {
-    this.router.navigateByUrl('/profile/edit');
+    const p = this.profile();
+    if (!p) return;
+    this.router.navigate(['/profile/edit', p.uid]);
   }
 }
