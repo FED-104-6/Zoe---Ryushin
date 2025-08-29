@@ -1,8 +1,5 @@
-<h1 class="page-title">Contribute to the RentEase community in just few mins!</h1>
-<p class="page-subtitle">Know a great flat? Share it and help someone find their next home.</p>
-
 <form class="form-container" [formGroup]="form" (ngSubmit)="onSubmit($event)" novalidate>
-  <!-- LEFT -->
+  <!-- Left -->
   <div class="form-left">
     <h2 class="section-title">General info</h2>
 
@@ -52,12 +49,12 @@
       Has air conditioning
     </label>
 
-    <button class="submit-btn" type="submit" [disabled]="disableSubmit">Share this flat</button>
+    <button class="submit-btn" type="submit" [disabled]="disableSubmit">Update</button>
   </div>
 
-  <!-- RIGHT -->
+  <!-- Right -->
   <div class="form-right">
-    <h2 class="section-title">Upload photos (optional)</h2>
+    <h2 class="section-title">Upload photo</h2>
 
     <div class="form-group">
       <div class="upload-box">
@@ -69,10 +66,9 @@
           (change)="onFile($event)"
           class="upload-input"
           aria-label="Upload photo"
-        >
+        />
         <div class="upload-caption">Photo: JPG or PNG (max 5MB).</div>
 
-        <!-- preview -->
         <div class="upload-preview" *ngIf="form.value.image">
           <img [src]="form.value.image" alt="photo" />
         </div>

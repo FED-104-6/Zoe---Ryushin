@@ -1,55 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
-import Message from './message/message';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';  // ★
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, Message],
-  template: `
-    <a routerLink="/search" class="btn">← Back to Search</a>
-
-    <ng-container *ngIf="flat">
-      <h2>{{ flat.title || flat.city + ' · ' + flat.streetName }}</h2>
-      <div class="meta">
-        {{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}
-      </div>
-      <div class="price">
-        {{ flat.rentPrice | currency : 'USD' : 'symbol' : '1.0-0' }} / month
-      </div>
-
-      <div class="owner" *ngIf="flat.ownerName || flat.ownerEmail">
-        Owner: {{ flat.ownerName }}
-        <span *ngIf="flat.ownerEmail">• {{ flat.ownerEmail }}</span>
-      </div>
-
-      <div class="gallery" *ngIf="images.length">
-        <img *ngFor="let url of images" [src]="url" alt="image" />
-      </div>
-
-      <button *ngIf="canEdit()" [routerLink]="['/flats', flat.id, 'edit']">
-        Edit
-      </button>
-      <section class="messages" *ngIf="flat">
-        <app-message
-          [flatId]="flat.id!"
-          [ownerId]="flat.ownerId!"
-          [ownerName]="flat.ownerName || ''"
-          [ownerEmail]="flat.ownerEmail || ''"
-          [currentUserId]="auth.currentUser?.uid || null"
-          [canOwnerSend]="false"
-        >
-        </app-message>
-      </section>
-    </ng-container>
-  `,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './view-flat.page.html',
+  styleUrls: ['./view-flat.page.css'],
 })
-export default class ViewFlatPage implements OnInit {
+export class ViewFlatPage {
   flat: Flat | null = null;
+
   images: string[] = [];
+  mainImage = 'assets/placeholder.jpg';
+
+
+  address = '';
+  encodedAddress = '';
+  mapLink = '';
+  mapEmbedUrl = '';
+  mapSafeUrl: SafeResourceUrl | null = null;       
+
+  private sanitizer = inject(DomSanitizer);       
+
 
   constructor(
     private route: ActivatedRoute,
@@ -61,17 +38,35 @@ export default class ViewFlatPage implements OnInit {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.flat = await this.flats.getOne(id);
 
-    this.images = [];
+    // images
     const anyFlat: any = this.flat;
-
+    let list: string[] = [];
     if (anyFlat && Array.isArray(anyFlat.images)) {
-      const arr = anyFlat.images;
-      this.images = Array.isArray(arr[0])
-        ? (arr[0] as string[])
-        : (arr as string[]);
-    } else if (this.flat?.image) {
-      this.images = [this.flat.image];
+      const first = anyFlat.images[0];
+      list = Array.isArray(first) ? (first as string[]) : (anyFlat.images as string[]);
     }
+    if (!list.length && this.flat?.image) list = [this.flat.image];
+    this.images = (list || []).filter(Boolean);
+    this.mainImage = this.images[0] || this.mainImage;
+
+    // address
+    const num  = this.flat?.streetNumber ? String(this.flat?.streetNumber) + ' ' : '';
+    const name = this.flat?.streetName || '';
+    const city = this.flat?.city ? ', ' + this.flat?.city : '';
+    this.address = `${num}${name}${city}`.trim();
+
+    if (this.address) {
+      this.encodedAddress = encodeURIComponent(this.address);
+
+      this.mapEmbedUrl = `https://maps.google.com/maps?q=${this.encodedAddress}&output=embed`;
+      this.mapLink     = `https://www.google.com/maps/search/?api=1&query=${this.encodedAddress}`;
+      this.mapSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.mapEmbedUrl); // ★
+
+    }
+  }
+
+  selectImage(url: string) {
+    this.mainImage = url || this.mainImage;
   }
 
   canEdit() {

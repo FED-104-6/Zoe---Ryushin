@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './auth/auth.guard';
-import { adminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'search' },
+
 
   {
     path: 'search',
@@ -47,11 +46,9 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'register',
-    loadComponent: () =>
-      import('./auth/register.component/register').then(
-        (m) => m.RegisterComponent
-      ),
+    path: 'flats/:id/edit',
+    canActivate: [() => import('./flats/owner-edit.guard').then(m => m.ownerEditGuard)],
+    loadComponent: () => import('./flats/edit-flat.page').then(m => m.default)
   },
   {
     path: 'profile',

@@ -1,65 +1,64 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
 
 @Component({
   standalone: true,
+  selector: 'app-my-flat',
   imports: [CommonModule, RouterModule],
-  template: `
-    <h2>My Flats</h2>
-
-    <table *ngIf="rows().length">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>City</th>
-          <th>Price</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let f of rows()">
-          <td>{{ f.title || (f.city + ' · ' + f.streetName) }}</td>
-          <td>{{ f.city }}</td>
-          <td>\${{ f.rentPrice }}</td>
-          <td>
-            <button (click)="toView(f.id!)">View</button>
-            <button (click)="toEdit(f.id!)">Edit</button>
-            <button (click)="onDelete(f.id!)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="!rows().length">No flats yet.</p>
-  `,
+  templateUrl: './my-flat.component.html',
+  styleUrls: ['./my-flat.component.css'],
 })
 export class MyFlatComponent {
-  private auth = inject(Auth);
   private flats = inject(FlatsService);
   private router = inject(Router);
 
+  loading = signal<boolean>(true);
   rows = signal<Flat[]>([]);
+  error = signal<string | null>(null);
 
   async ngOnInit() {
-    const uid = this.auth.currentUser?.uid || '';
-    if (!uid) return;
-    this.rows.set(await this.flats.myFlats(uid));
+    try {
+      const me = this.flats.currentUser();
+      if (!me.id) {
+        this.router.navigate(['/login']);
+        return;
+      }
+      this.rows.set(await this.flats.myFlats(me.id));
+    } catch (e: any) {
+      this.error.set(e?.message ?? 'Failed to load your flats');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
-  toView(id: string) {
-    this.router.navigate(['/flats', id]);
+  toView(e: Event, id?: string) {
+    e.stopPropagation();
+    if (id) this.router.navigate(['/flats', id]);
   }
 
-  toEdit(id: string) {
-    this.router.navigate(['/flats', id, 'edit']);
+  toEdit(e: Event, id?: string) {
+    e.stopPropagation();
+    if (id) this.router.navigate(['/flats', id, 'edit']);
   }
 
-  async onDelete(id: string) {
-    await this.flats.remove(id);
-    this.rows.set(this.rows().filter((r) => r.id !== id));
+  async remove(e: Event, id?: string) {
+    e.stopPropagation();
+    if (!id) return;
+    const ok = confirm('Delete this flat? This cannot be undone.');
+    if (!ok) return;
+    try {
+      await this.flats.remove(id);
+      this.rows.set(this.rows().filter(r => r.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Delete failed. Please try again.');
+    }
+  }
+
+  addr(f: Flat) {
+    return [f.streetNumber, f.streetName, f.city].filter(Boolean).join(' ');
   }
 }

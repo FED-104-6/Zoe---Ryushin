@@ -1,51 +1,43 @@
-<main class="main-container">
-  <section class="content">
-    <div class="sort-bar">
-      <h2 style="margin:0">My Flat</h2>
-      <span class="spacer"></span>
-      <button class="btn btn-primary" (click)="toNew()">Insert New Flat</button>
-    </div>
+<div class="wrap">
+  <header class="toolbar">
+    <h1>My Flats</h1>
+    <a class="btn primary" routerLink="/new-flat">+ Insert new flat</a>
+  </header>
 
-    <div class="table-wrap" style="margin-top:16px">
-      <table class="table table--flats">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>City</th>
-            <th>Street</th>
-            <th>No.</th>
-            <th>Area</th>
-            <th>AC</th>
-            <th>Year</th>
-            <th>Rent</th>
-            <th>Available</th>
-            <th class="col--actions">Actions</th>
-          </tr>
-        </thead>
+  <div *ngIf="loading()" class="state muted">Loading…</div>
+  <div *ngIf="!loading() && error()" class="state error">{{ error() }}</div>
 
-        <tbody>
-          <tr *ngFor="let f of (myFlats$ | async)">
-            <td>{{ f.title || (f.city + ' · ' + f.streetName) }}</td>
-            <td>{{ f.city }}</td>
-            <td>{{ f.streetName }}</td>
-            <td>{{ f.streetNumber }}</td>
-            <td>{{ f.areaSize }} m²</td>
-            <td><span class="tag">{{ f.hasAC ? 'Yes' : 'No' }}</span></td>
-            <td>{{ f.yearBuilt }}</td>
-            <td>${{ f.rentPrice }}/month</td>
-            <td>{{ f.dateAvailable | date }}</td>
-            <td class="actions">
-              <button class="btn btn-ghost btn-sm" (click)="toView(f.id!)">View</button>
-              <button class="btn btn-ghost btn-sm" (click)="toEdit(f.id!)">Edit</button>
-              <button class="btn btn-ghost btn-sm danger" (click)="remove(f.id!)">Delete</button>
-            </td>
-          </tr>
+  <div *ngIf="!loading() && !error() && rows().length === 0" class="empty">
+    <p>You haven’t published any flats yet.</p>
+    <a class="btn primary" routerLink="/new-flat">Publish your first flat</a>
+  </div>
 
-          <tr *ngIf="(myFlats$ | async)?.length === 0">
-            <td colspan="10" class="empty">No flats yet.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</main>
+  <ul *ngIf="rows().length" class="list">
+    <li class="row" *ngFor="let f of rows()" (click)="toView($event, f.id)">
+      <div class="thumb">
+        <img [src]="f.image || 'assets/placeholder.jpg'"
+             [alt]="f.title || (f.city + ' · ' + f.streetName)" />
+      </div>
+
+      <div class="body">
+        <h3 class="title">{{ f.title || (f.city + ' · ' + f.streetName) }}</h3>
+        <div class="meta">
+          <span class="chip">{{ addr(f) }}</span>
+          <span class="chip">Area: {{ f.areaSize }} ㎡</span>
+          <span class="chip">Year: {{ f.yearBuilt }}</span>
+          <span class="chip">AC: {{ f.hasAC ? 'Yes' : 'No' }}</span>
+          <span class="chip">Available: {{ f.dateAvailable }}</span>
+        </div>
+        <div class="price">
+          ${{ f.rentPrice | number : '1.0-0' }} <span class="unit">/month</span>
+        </div>
+      </div>
+
+      <div class="ops" (click)="$event.stopPropagation()">
+        <button class="btn ghost" (click)="toView($event, f.id)">View</button>
+        <button class="btn ghost" (click)="toEdit($event, f.id)">Edit</button>
+        <button class="btn danger" (click)="remove($event, f.id)">Delete</button>
+      </div>
+    </li>
+  </ul>
+</div>
