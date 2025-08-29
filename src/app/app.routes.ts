@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth.guard';
+import { adminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'search' },
-
 
   {
     path: 'search',
@@ -28,7 +29,7 @@ export const routes: Routes = [
   {
     path: 'flats/:id',
     loadComponent: () =>
-      import('./flats/view-flat.page').then((m) => m.default),
+      import('./flats/view-flat.page').then((m) => m.ViewFlatPage),
   },
   {
     path: 'flats/:id/edit',
@@ -47,8 +48,11 @@ export const routes: Routes = [
   },
   {
     path: 'flats/:id/edit',
-    canActivate: [() => import('./flats/owner-edit.guard').then(m => m.ownerEditGuard)],
-    loadComponent: () => import('./flats/edit-flat.page').then(m => m.default)
+    canActivate: [
+      () => import('./flats/owner-edit.guard').then((m) => m.ownerEditGuard),
+    ],
+    loadComponent: () =>
+      import('./flats/edit-flat.page').then((m) => m.default),
   },
   {
     path: 'profile',
