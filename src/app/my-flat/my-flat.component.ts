@@ -1,62 +1,64 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
+import { Router, RouterModule } from '@angular/router';
 import { FlatsService } from '../services/flats.service';
 import { Flat } from '../models/flat.model';
 
 @Component({
   standalone: true,
+  selector: 'app-my-flat',
   imports: [CommonModule, RouterModule],
   templateUrl: './my-flat.component.html',
-  styleUrls: ['./my-flat.component.css'], 
+  styleUrls: ['./my-flat.component.css'],
 })
-export class ViewFlatPage {
-  flat: Flat | null = null;
+export class MyFlatComponent {
+  private flats = inject(FlatsService);
+  private router = inject(Router);
 
-  // gallery
-  images: string[] = [];
-  mainImage = 'assets/placeholder.jpg';
-  address = '';
-  encodedAddress = '';
-  mapLink = '';
-  mapEmbedUrl = '';
-
-  constructor(
-    private route: ActivatedRoute,
-    private flats: FlatsService,
-    private auth: Auth
-  ) {}
+  loading = signal<boolean>(true);
+  rows = signal<Flat[]>([]);
+  error = signal<string | null>(null);
 
   async ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.flat = await this.flats.getOne(id);
-
-    const anyFlat: any = this.flat;
-    let list: string[] = [];
-    if (anyFlat && Array.isArray(anyFlat.images)) {
-      const first = anyFlat.images[0];
-      list = Array.isArray(first) ? (first as string[]) : (anyFlat.images as string[]);
+    try {
+      const me = this.flats.currentUser();
+      if (!me.id) {
+        this.router.navigate(['/login']);
+        return;
+      }
+      this.rows.set(await this.flats.myFlats(me.id));
+    } catch (e: any) {
+      this.error.set(e?.message ?? 'Failed to load your flats');
+    } finally {
+      this.loading.set(false);
     }
-    if (!list.length && this.flat?.image) list = [this.flat.image];
-    this.images = (list || []).filter(Boolean);
-    this.mainImage = this.images[0] || this.mainImage;
-
-    const num  = this.flat?.streetNumber ? String(this.flat?.streetNumber) + ' ' : '';
-    const name = this.flat?.streetName || '';
-    const city = this.flat?.city ? ', ' + this.flat?.city : '';
-    this.address = `${num}${name}${city}`.trim();
-
-    this.encodedAddress = encodeURIComponent(this.address);
-    this.mapLink   = `https://www.google.com/maps/search/?api=1&query=${this.encodedAddress}`;
-    this.mapEmbedUrl = `https://www.google.com/maps?q=${this.encodedAddress}&output=embed`;
   }
 
-  selectImage(url: string) {
-    this.mainImage = url || this.mainImage;
+  toView(e: Event, id?: string) {
+    e.stopPropagation();
+    if (id) this.router.navigate(['/flats', id]);
   }
 
-  canEdit() {
-    return this.auth.currentUser?.uid === this.flat?.ownerId;
+  toEdit(e: Event, id?: string) {
+    e.stopPropagation();
+    if (id) this.router.navigate(['/flats', id, 'edit']);
+  }
+
+  async remove(e: Event, id?: string) {
+    e.stopPropagation();
+    if (!id) return;
+    const ok = confirm('Delete this flat? This cannot be undone.');
+    if (!ok) return;
+    try {
+      await this.flats.remove(id);
+      this.rows.set(this.rows().filter(r => r.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Delete failed. Please try again.');
+    }
+  }
+
+  addr(f: Flat) {
+    return [f.streetNumber, f.streetName, f.city].filter(Boolean).join(' ');
   }
 }

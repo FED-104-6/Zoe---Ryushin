@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FlatsService } from '../services/flats.service';
 import { FavoritesService } from '../services/favorites.service';
 import { Flat } from '../models/flat.model';
+import { Auth } from '@angular/fire/auth';              
 
 @Component({
   standalone: true,
@@ -18,6 +19,7 @@ export class SearchComponent {
   private flats = inject(FlatsService);
   private favs = inject(FavoritesService);
   private router = inject(Router);
+  private auth = inject(Auth);                          
 
   form = this.fb.group({
     city: [''],
@@ -32,38 +34,59 @@ export class SearchComponent {
   view: Flat[] = [];
 
   favIds = signal<string[]>([]);
+  private favPending = new Set<string>();               
 
-  // remember last sort so filters won't reset it
   private lastSort: 'priceAsc'|'priceDesc'|'cityAsc'|'cityDesc'|'areaAsc'|'areaDesc'|null = null;
 
   async ngOnInit() {
-    // live list from Firestore
     this.flats.all$().subscribe(rows => {
       this.all = rows ?? [];
       this.applyFilters();
     });
 
-    // load favorites
-    try { this.favIds.set(await this.favs.listIds()); } catch {}
+    try {
+      if (this.auth.currentUser?.uid) {
+        this.favIds.set(await this.favs.listIds());
+      } else {
+        this.favIds.set([]);
+      }
+    } catch (e) {
+      console.error('[favorites] load ids failed:', e); 
+    }
   }
 
-  // navigation to view page once user clicks card
   toView(id: string) { if (id) this.router.navigate(['/flats', id]); }
 
-  // favorites helpers
   isFav(id?: string) { return !!id && this.favIds().includes(id); }
 
   async toggleFav(e: Event, id?: string) {
     e.preventDefault();
     e.stopPropagation();
     if (!id) return;
+
+    if (!this.auth.currentUser?.uid) {                  
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    if (this.favPending.has(id)) return;                
+    this.favPending.add(id);
+
+    const before = this.favIds();                        
+    const wasFav = before.includes(id);
+    this.favIds.set(wasFav ? before.filter(x => x !== id) : [...before, id]);
+
     try {
-      await this.favs.toggle(id);
+      await this.favs.toggle(id);                        
       this.favIds.set(await this.favs.listIds());
-    } catch {}
+    } catch (err) {
+      console.error('[favorites.toggle] failed:', err);  
+      this.favIds.set(before);
+    } finally {
+      this.favPending.delete(id);                        
+    }
   }
 
-  // filtering
   applyFilters() {
     const v = this.form.value;
     let rows = [...this.all];
@@ -93,7 +116,6 @@ export class SearchComponent {
     this.applyFilters();
   }
 
-  // sorting
   sortBy(key: 'priceAsc'|'priceDesc'|'cityAsc'|'cityDesc'|'areaAsc'|'areaDesc') {
     this.lastSort = key;
     this.view = this.sortRows([...this.view], key);

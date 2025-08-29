@@ -52,9 +52,7 @@
       Has air conditioning
     </label>
 
-    <button class="submit-btn" type="button" (click)="onSubmit($event)">
-      Share this flat
-    </button>
+    <button class="submit-btn" type="submit" [disabled]="disableSubmit">Share this flat</button>
   </div>
 
   <!-- RIGHT -->

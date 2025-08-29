@@ -1,53 +1,43 @@
-<a routerLink="/search" class="btn back-btn">← Back to Search</a>
+<div class="wrap">
+  <header class="toolbar">
+    <h1>My Flats</h1>
+    <a class="btn primary" routerLink="/new-flat">+ Insert new flat</a>
+  </header>
 
-<ng-container *ngIf="flat as f">
-  <div class="view-wrap">
+  <div *ngIf="loading()" class="state muted">Loading…</div>
+  <div *ngIf="!loading() && error()" class="state error">{{ error() }}</div>
 
-    <section class="left">
-      <div class="main-photo">
-        <img [src]="mainImage" [alt]="f.title || (f.city + ' · ' + f.streetName)" />
-      </div>
-
-      <div class="thumbs" *ngIf="images.length > 1">
-        <button
-          type="button"
-          class="thumb"
-          *ngFor="let url of images"
-          (click)="selectImage(url)"
-        >
-          <img [src]="url" alt="photo" />
-        </button>
-      </div>
-    </section> 
-
-    <aside class="right">
-      <h1 class="title">{{ f.title || (f.city + ' · ' + f.streetName) }}</h1>
-      <div class="addr">{{ f.streetNumber }} {{ f.streetName }}, {{ f.city }}</div>
-
-      <div class="price">
-        ${{ f.rentPrice | number:'1.0-0' }} <span class="unit">/month</span>
-      </div>
-
-      <div class="quick-facts">
-        <div class="fact"><span class="label">Area</span><span class="val">{{ f.areaSize }} ㎡</span></div>
-        <div class="fact"><span class="label">Year built</span><span class="val">{{ f.yearBuilt }}</span></div>
-        <div class="fact"><span class="label">Has AC</span><span class="val">{{ f.hasAC ? 'Yes' : 'No' }}</span></div>
-        <div class="fact"><span class="label">Available from</span><span class="val">{{ f.dateAvailable }}</span></div>
-      </div>
-
-      <div class="owner" *ngIf="f.ownerName || f.ownerEmail">
-        <span class="label">Owner</span>
-        <span class="val">
-          {{ f.ownerName || 'Owner' }}<ng-container *ngIf="f.ownerEmail"> • {{ f.ownerEmail }}</ng-container>
-        </span>
-      </div>
-
-      <a *ngIf="canEdit()" class="btn primary edit-btn" [routerLink]="['/flats', f.id, 'edit']">Edit</a>
-
-      <div class="map-block" *ngIf="address">
-        <iframe class="map" [attr.src]="mapEmbedUrl" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <a class="map-link" [href]="mapLink" target="_blank" rel="noopener">Open in Google Maps</a>
-      </div>
-    </aside>
+  <div *ngIf="!loading() && !error() && rows().length === 0" class="empty">
+    <p>You haven’t published any flats yet.</p>
+    <a class="btn primary" routerLink="/new-flat">Publish your first flat</a>
   </div>
-</ng-container>
+
+  <ul *ngIf="rows().length" class="list">
+    <li class="row" *ngFor="let f of rows()" (click)="toView($event, f.id)">
+      <div class="thumb">
+        <img [src]="f.image || 'assets/placeholder.jpg'"
+             [alt]="f.title || (f.city + ' · ' + f.streetName)" />
+      </div>
+
+      <div class="body">
+        <h3 class="title">{{ f.title || (f.city + ' · ' + f.streetName) }}</h3>
+        <div class="meta">
+          <span class="chip">{{ addr(f) }}</span>
+          <span class="chip">Area: {{ f.areaSize }} ㎡</span>
+          <span class="chip">Year: {{ f.yearBuilt }}</span>
+          <span class="chip">AC: {{ f.hasAC ? 'Yes' : 'No' }}</span>
+          <span class="chip">Available: {{ f.dateAvailable }}</span>
+        </div>
+        <div class="price">
+          ${{ f.rentPrice | number : '1.0-0' }} <span class="unit">/month</span>
+        </div>
+      </div>
+
+      <div class="ops" (click)="$event.stopPropagation()">
+        <button class="btn ghost" (click)="toView($event, f.id)">View</button>
+        <button class="btn ghost" (click)="toEdit($event, f.id)">Edit</button>
+        <button class="btn danger" (click)="remove($event, f.id)">Delete</button>
+      </div>
+    </li>
+  </ul>
+</div>
