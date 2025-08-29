@@ -35,10 +35,13 @@ export class FlatsService {
   }
 
   all$(): Observable<Flat[]> {
-    return collectionData(query(this.colRef(), orderBy('createdAt', 'desc')), {
-      idField: 'id',
-    }) as Observable<Flat[]>;
-  }
+  const qref = query(
+    this.colRef(),
+    where('published', '==', true),
+    orderBy('createdAt', 'desc')
+  );
+  return collectionData(qref, { idField: 'id' }) as Observable<Flat[]>;
+}
 
   async getOne(id: string): Promise<Flat | null> {
     console.log('[flats.getOne] id =', id);

@@ -103,3 +103,6 @@
 .btn.primary { background: #111827; color: #fff; border-color: #111827; }
 .btn.ghost { background: #fff; color: #111827; }
 .btn.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+a.btn {
+  text-decoration: none; 
+}
